@@ -1,4 +1,6 @@
 import 'package:erpku_pos/core/theme/color_values.dart';
+import 'package:erpku_pos/core/widgets/components/components.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -44,12 +46,14 @@ class HomeTitle extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(
-          width: 300.0,
-          child: SearchInput(
-            controller: controller,
-            onChanged: onChanged,
-            hintText: 'Search for food, coffe, etc..',
+        Flexible(
+          child: SizedBox(
+            width: 250.0,
+            child: SearchInput(
+              controller: controller,
+              onChanged: onChanged,
+              hintText: 'Search for food, coffe, etc..',
+            ),
           ),
         ),
       ],

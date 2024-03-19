@@ -21,6 +21,26 @@ class ProductModel {
 
   String get priceFormat => price.currencyFormatRp;
 
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    return ProductModel(
+      image: json['image'],
+      name: json['name'],
+      category: ProductCategory.fromValue(json['category']),
+      price: json['price'],
+      stock: json['stock'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'image': image,
+      'name': name,
+      'category': category.toValue(), // Convert ProductCategory to value
+      'price': price,
+      'stock': stock,
+    };
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

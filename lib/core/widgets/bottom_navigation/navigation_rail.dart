@@ -1,7 +1,7 @@
 import 'package:erpku_pos/core/extensions/build_context_ext.dart';
 import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:erpku_pos/core/widgets/bottom_navigation/widgets/nav_item.dart';
-import 'package:erpku_pos/feature/order/presentation/order_page.dart';
+import 'package:erpku_pos/feature/order/presentation/item/history_order_page/order_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

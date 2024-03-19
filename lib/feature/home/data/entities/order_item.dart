@@ -8,6 +8,20 @@ class OrderItem {
     required this.quantity,
   });
 
+  factory OrderItem.fromJson(Map<String, dynamic> json) {
+    return OrderItem(
+      product: ProductModel.fromJson(json['product']),
+      quantity: json['quantity'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'product': product.toJson(), // Convert ProductModel to JSON
+      'quantity': quantity,
+    };
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

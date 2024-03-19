@@ -11,6 +11,8 @@ enum ProductCategory {
   bool get isDrink => this == ProductCategory.drink;
   bool get isSnack => this == ProductCategory.snack;
 
+  String toValue() => value; // Add this method to return the value
+
   factory ProductCategory.fromValue(String value) {
     return values.firstWhere(
       (element) => element.value == value,

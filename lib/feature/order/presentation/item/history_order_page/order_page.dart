@@ -1,9 +1,9 @@
 import 'package:erpku_pos/feature/order/presentation/history_order_page.dart';
-import 'package:erpku_pos/feature/order/presentation/save_order_page.dart';
+import 'package:erpku_pos/feature/order/presentation/item/save_order_page/save_order_page.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/color_values.dart';
-import '../../../core/widgets/components/spaces.dart';
+import '../../../../../core/theme/color_values.dart';
+import '../../../../../core/widgets/components/spaces.dart';
 
 class OrderPage extends StatefulWidget {
   const OrderPage({super.key});
@@ -41,7 +41,7 @@ class _OrderPageState extends State<OrderPage> {
                 padding: const EdgeInsets.all(16.0),
                 children: [
                   const Text(
-                    'Settings',
+                    'Order Page',
                     style: TextStyle(
                       color: ColorValues.primary,
                       fontSize: 28,
@@ -86,8 +86,8 @@ class _OrderPageState extends State<OrderPage> {
                 child: IndexedStack(
                   index: currentIndex,
                   children: const [
-                    HistoryOrderPage(),
                     SaveOrderPage(),
+                    HistoryOrderPage(),
                   ],
                 ),
               ),

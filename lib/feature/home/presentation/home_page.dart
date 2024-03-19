@@ -1,9 +1,12 @@
 import 'package:erpku_pos/core/theme/color_values.dart';
+import 'package:erpku_pos/feature/home/data/entities/save_order_data_model.dart';
 import 'package:erpku_pos/feature/home/widgets/empty_product.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/gen/assets/assets.gen.dart';
+import '../../../core/service/database_helper.dart';
 import '../../../core/widgets/components/buttons.dart';
 import '../../../core/widgets/components/spaces.dart';
 import '../../payment/presentation/confirm_payment_page.dart';
@@ -17,7 +20,8 @@ import '../widgets/order_menu.dart';
 import '../widgets/product_card.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.orderSaveData});
+  final OrderSaveData? orderSaveData;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -25,6 +29,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final searchController = TextEditingController();
+  final nameController = TextEditingController();
 
   List<ProductModel> searchResults = [];
   final List<ProductModel> products = [
@@ -75,202 +80,223 @@ class _HomePageState extends State<HomePage> {
         children: [
           Expanded(
             flex: 3,
-            child: Align(
-              alignment: AlignmentDirectional.topStart,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      HomeTitle(
-                        controller: searchController,
-                        onChanged: (value) {
-                          searchResults = products
-                              .where((e) => e.name
+            child: Stack(
+              children: [
+                Align(
+                  alignment: AlignmentDirectional.topStart,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          HomeTitle(
+                            controller: searchController,
+                            onChanged: (value) {
+                              searchResults = products
+                                  .where((e) => e.name
                                   .toLowerCase()
                                   .contains(value.toLowerCase()))
-                              .toList();
-                          setState(() {});
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      CustomTabBar(
-                        tabTitles: const [
-                          'Semua',
-                          'Makanan',
-                          'Minuman',
-                          'Snack'
+                                  .toList();
+                              setState(() {});
+                            },
+                          ),
+                          const SizedBox(height: 24),
+                          CustomTabBar(
+                            tabTitles: const [
+                              'Semua',
+                              'Makanan',
+                              'Minuman',
+                              'Snack'
+                            ],
+                            initialTabIndex: 0,
+                            tabViews: [
+                              if (searchResults.isEmpty)
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 80.0),
+                                  child: IsEmpty(),
+                                )
+                              else
+                                SizedBox(
+                                  child: GridView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: searchResults.length,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      childAspectRatio: 0.85,
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: 30.0,
+                                      mainAxisSpacing: 30.0,
+                                    ),
+                                    itemBuilder: (context, index) => ProductCard(
+                                      data: searchResults[index],
+                                      onCartButton: () {
+                                        _toggleProductSelection(
+                                            searchResults[index]);
+                                      },
+                                      qty: selectedProducts
+                                          .containsKey(searchResults[index])
+                                          ? selectedProducts[
+                                      searchResults[index]] ??
+                                          0
+                                          : 0,
+                                    ),
+                                  ),
+                                ),
+                              if (searchResults
+                                  .where((element) => element.category.isFood)
+                                  .toList()
+                                  .isEmpty)
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 80.0),
+                                  child: IsEmpty(),
+                                )
+                              else
+                                SizedBox(
+                                  child: GridView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: searchResults
+                                        .where((element) => element.category.isFood)
+                                        .toList()
+                                        .length,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      childAspectRatio: 0.85,
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: 30.0,
+                                      mainAxisSpacing: 30.0,
+                                    ),
+                                    itemBuilder: (context, index) => ProductCard(
+                                      data: searchResults
+                                          .where(
+                                              (element) => element.category.isFood)
+                                          .toList()[index],
+                                      onCartButton: () {
+                                        _toggleProductSelection(
+                                            searchResults[index]);
+                                      },
+                                      qty: selectedProducts
+                                          .containsKey(searchResults[index])
+                                          ? selectedProducts[
+                                      searchResults[index]] ??
+                                          0
+                                          : 0,
+                                    ),
+                                  ),
+                                ),
+                              if (searchResults
+                                  .where((element) => element.category.isDrink)
+                                  .toList()
+                                  .isEmpty)
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 80.0),
+                                  child: IsEmpty(),
+                                )
+                              else
+                                SizedBox(
+                                  child: GridView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: searchResults
+                                        .where(
+                                            (element) => element.category.isDrink)
+                                        .toList()
+                                        .length,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      childAspectRatio: 0.85,
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: 30.0,
+                                      mainAxisSpacing: 30.0,
+                                    ),
+                                    itemBuilder: (context, index) => ProductCard(
+                                      data: searchResults
+                                          .where(
+                                              (element) => element.category.isDrink)
+                                          .toList()[index],
+                                      onCartButton: () {
+                                        _toggleProductSelection(
+                                            searchResults[index]);
+                                      },
+                                      qty: selectedProducts
+                                          .containsKey(searchResults[index])
+                                          ? selectedProducts[
+                                      searchResults[index]] ??
+                                          0
+                                          : 0,
+                                    ),
+                                  ),
+                                ),
+                              if (searchResults
+                                  .where((element) => element.category.isSnack)
+                                  .toList()
+                                  .isEmpty)
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 80.0),
+                                  child: IsEmpty(),
+                                )
+                              else
+                                SizedBox(
+                                  child: GridView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: searchResults
+                                        .where(
+                                            (element) => element.category.isSnack)
+                                        .toList()
+                                        .length,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      childAspectRatio: 0.85,
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: 30.0,
+                                      mainAxisSpacing: 30.0,
+                                    ),
+                                    itemBuilder: (context, index) => ProductCard(
+                                      data: searchResults
+                                          .where(
+                                              (element) => element.category.isSnack)
+                                          .toList()[index],
+                                      onCartButton: () {
+                                        _toggleProductSelection(
+                                            searchResults[index]);
+                                      },
+                                      qty: selectedProducts
+                                          .containsKey(searchResults[index])
+                                          ? selectedProducts[
+                                      searchResults[index]] ??
+                                          0
+                                          : 0,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          //floating action button di samping bawah kiri
+
                         ],
-                        initialTabIndex: 0,
-                        tabViews: [
-                          if (searchResults.isEmpty)
-                            const Padding(
-                              padding: EdgeInsets.only(top: 80.0),
-                              child: IsEmpty(),
-                            )
-                          else
-                            SizedBox(
-                              child: GridView.builder(
-                                shrinkWrap: true,
-                                itemCount: searchResults.length,
-                                physics: const NeverScrollableScrollPhysics(),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: 0.85,
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: 30.0,
-                                  mainAxisSpacing: 30.0,
-                                ),
-                                itemBuilder: (context, index) => ProductCard(
-                                  data: searchResults[index],
-                                  onCartButton: () {
-                                    _toggleProductSelection(
-                                        searchResults[index]);
-                                  },
-                                  qty: selectedProducts
-                                          .containsKey(searchResults[index])
-                                      ? selectedProducts[
-                                              searchResults[index]] ??
-                                          0
-                                      : 0,
-                                ),
-                              ),
-                            ),
-                          if (searchResults
-                              .where((element) => element.category.isFood)
-                              .toList()
-                              .isEmpty)
-                            const Padding(
-                              padding: EdgeInsets.only(top: 80.0),
-                              child: IsEmpty(),
-                            )
-                          else
-                            SizedBox(
-                              child: GridView.builder(
-                                shrinkWrap: true,
-                                itemCount: searchResults
-                                    .where((element) => element.category.isFood)
-                                    .toList()
-                                    .length,
-                                physics: const NeverScrollableScrollPhysics(),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: 0.85,
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: 30.0,
-                                  mainAxisSpacing: 30.0,
-                                ),
-                                itemBuilder: (context, index) => ProductCard(
-                                  data: searchResults
-                                      .where(
-                                          (element) => element.category.isFood)
-                                      .toList()[index],
-                                  onCartButton: () {
-                                    _toggleProductSelection(
-                                        searchResults[index]);
-                                  },
-                                  qty: selectedProducts
-                                          .containsKey(searchResults[index])
-                                      ? selectedProducts[
-                                              searchResults[index]] ??
-                                          0
-                                      : 0,
-                                ),
-                              ),
-                            ),
-                          if (searchResults
-                              .where((element) => element.category.isDrink)
-                              .toList()
-                              .isEmpty)
-                            const Padding(
-                              padding: EdgeInsets.only(top: 80.0),
-                              child: IsEmpty(),
-                            )
-                          else
-                            SizedBox(
-                              child: GridView.builder(
-                                shrinkWrap: true,
-                                itemCount: searchResults
-                                    .where(
-                                        (element) => element.category.isDrink)
-                                    .toList()
-                                    .length,
-                                physics: const NeverScrollableScrollPhysics(),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: 0.85,
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: 30.0,
-                                  mainAxisSpacing: 30.0,
-                                ),
-                                itemBuilder: (context, index) => ProductCard(
-                                  data: searchResults
-                                      .where(
-                                          (element) => element.category.isDrink)
-                                      .toList()[index],
-                                  onCartButton: () {
-                                    _toggleProductSelection(
-                                        searchResults[index]);
-                                  },
-                                  qty: selectedProducts
-                                          .containsKey(searchResults[index])
-                                      ? selectedProducts[
-                                              searchResults[index]] ??
-                                          0
-                                      : 0,
-                                ),
-                              ),
-                            ),
-                          if (searchResults
-                              .where((element) => element.category.isSnack)
-                              .toList()
-                              .isEmpty)
-                            const Padding(
-                              padding: EdgeInsets.only(top: 80.0),
-                              child: IsEmpty(),
-                            )
-                          else
-                            SizedBox(
-                              child: GridView.builder(
-                                shrinkWrap: true,
-                                itemCount: searchResults
-                                    .where(
-                                        (element) => element.category.isSnack)
-                                    .toList()
-                                    .length,
-                                physics: const NeverScrollableScrollPhysics(),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  childAspectRatio: 0.85,
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: 30.0,
-                                  mainAxisSpacing: 30.0,
-                                ),
-                                itemBuilder: (context, index) => ProductCard(
-                                  data: searchResults
-                                      .where(
-                                          (element) => element.category.isSnack)
-                                      .toList()[index],
-                                  onCartButton: () {
-                                    _toggleProductSelection(
-                                        searchResults[index]);
-                                  },
-                                  qty: selectedProducts
-                                          .containsKey(searchResults[index])
-                                      ? selectedProducts[
-                                              searchResults[index]] ??
-                                          0
-                                      : 0,
-                                ),
-                              ),
-                            ),
-                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                Positioned(
+                  bottom: 16.0,
+                  left: 16.0,
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Tambahkan produk'),
+                        ),
+                      );
+                    },
+                    backgroundColor: ColorValues.primary,
+                    child: const Icon(Icons.add, color: Colors.white,),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -473,28 +499,91 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Align(
                     alignment: Alignment.bottomCenter,
-                    child: ColoredBox(
-                      color: ColorValues.white,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24.0, vertical: 16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Button.outlined(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24.0, vertical: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Button.outlined(
                               width: 200,
-                              onPressed: () {},
+                              onPressed: () {
+                                // dialog text field untuk input nama pemesan
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: const Text('Nama Pemesan'),
+                                      content: TextField(
+                                        controller: nameController,
+                                        decoration: const InputDecoration(
+                                          hintText: 'Masukkan nama pemesan',
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('Batal'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            final List<OrderSaveData> orderSaveDataList = [];
+
+                                            for (final entry in selectedProducts.entries) {
+                                              final orderSaveDataModul = OrderSaveData(
+                                                id: widget.orderSaveData?.id ?? 0,
+                                                OrderName: nameController.text,
+                                                orderItem: OrderItem(
+                                                  product: entry.key,
+                                                  quantity: entry.value,
+                                                ),
+                                              );
+
+                                              orderSaveDataList.add(orderSaveDataModul);
+                                            }
+
+                                            final int insertedCount = await DatabaseHelper.addSaveProducts(orderSaveDataList);
+
+                                            print('Number of data inserted: $insertedCount');
+
+                                            print('Data berhasil disimpan');
+                                            print(orderSaveDataList);
+
+// Check if the data exists in the database
+                                            final List<OrderSaveData> savedData = await DatabaseHelper.getSaveProduct();
+                                            print('Data yang berhasil disimpan: $savedData');
+
+                                            if (savedData.isNotEmpty) {
+                                              // Check if the saved data matches the inserted data
+                                              print('Data berhasil dimasukkan ke dalam database');
+                                            } else {
+                                              print('Gagal memasukkan data ke dalam database');
+                                            }
+                                          },
+                                          child: const Text('Simpan'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
                               label: 'Simpan',
                             ),
-                            Button.filled(
+                          ),
+                          const SpaceWidth(8.0),
+                          Flexible(
+                            child: Button.filled(
                               width: 200,
                               onPressed: () {
                                 _navigateToConfirmPaymentPage();
                               },
                               label: 'Pembayaran',
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

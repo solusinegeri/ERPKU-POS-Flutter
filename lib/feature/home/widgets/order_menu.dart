@@ -34,15 +34,13 @@ class OrderMenu extends StatelessWidget {
                     fit: BoxFit.cover,
                   ),
                 ),
-                title: FittedBox(
-                  child: Text(data.product.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      )),
-                ),
+                title: Text(data.product.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    )),
                 subtitle: Text(data.product.priceFormat),
               ),
             ),
