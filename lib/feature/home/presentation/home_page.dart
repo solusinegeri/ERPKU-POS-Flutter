@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/gen/assets/assets.gen.dart';
-import '../../../core/service/database_helper.dart';
+import '../../../core/service/database_helper_product_item.dart';
+import '../../../core/service/database_helper_save_product.dart';
 import '../../../core/widgets/components/buttons.dart';
 import '../../../core/widgets/components/spaces.dart';
 import '../../payment/presentation/confirm_payment_page.dart';
 import '../data/entities/order_item.dart';
 import '../data/entities/product_category.dart';
+import '../data/entities/product_item_data_model.dart';
 import '../data/entities/product_model.dart';
 import '../widgets/column_button.dart';
 import '../widgets/custom_tab_bar.dart';
@@ -31,40 +33,36 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController   nameController = TextEditingController();
 
   List<ProductModel> searchResults = [];
-  final List<ProductModel> products = [
-    ProductModel(
-        image: Assets.images.menu1.path,
-        name: 'Express Bowl Ayam Rica',
-        category: ProductCategory.food,
-        price: 32000,
-        stock: 10),
-    ProductModel(
-        image: Assets.images.menu2.path,
-        name: 'Crispy Black Pepper Sauce',
-        category: ProductCategory.food,
-        price: 36000,
-        stock: 10),
-    ProductModel(
-        image: Assets.images.menu3.path,
-        name: 'Mie Ayam Teriyaki',
-        category: ProductCategory.food,
-        price: 33000,
-        stock: 10),
-    ProductModel(
-        image: Assets.images.menu4.path,
-        name: 'Nasi Ayam Teriyaki',
-        category: ProductCategory.food,
-        price: 21000,
-        stock: 10),
-  ];
+  List<ProductModel> products = []; // Initialize empty list initially
 
-  Map<ProductModel, int> selectedProducts = {};
+  final Map<ProductModel, int> selectedProducts = {};
   int quantity = 0;
 
   @override
   void initState() {
-    searchResults = products;
+    // Call the method to fetch products from the database
+    _fetchProductsFromDatabase();
     super.initState();
+  }
+
+  // Method to fetch products from the database
+  Future<void> _fetchProductsFromDatabase() async {
+    try {
+      // Fetch products from the database using appropriate method
+      List<ProductItemData> productItems = await DatabaseHelperProductItem.getOrder();
+
+      // Flatten the list of product items into a single list of products
+      products = productItems
+          .expand((item) => item.productItems)
+          .toList();
+
+      // Update the UI with the fetched products
+      setState(() {
+        searchResults = products;
+      });
+    } catch (e) {
+      print('Error fetching products from database: $e');
+    }
   }
 
   @override
@@ -273,26 +271,9 @@ class _HomePageState extends State<HomePage> {
                                 ),
                             ],
                           ),
-                          //floating action button di samping bawah kiri
-
                         ],
                       ),
                     ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 16.0,
-                  left: 16.0,
-                  child: FloatingActionButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Tambahkan produk'),
-                        ),
-                      );
-                    },
-                    backgroundColor: ColorValues.primary,
-                    child: const Icon(Icons.add, color: Colors.white,),
                   ),
                 ),
               ],
@@ -618,11 +599,11 @@ class _HomePageState extends State<HomePage> {
         orderItems: orderItems,
       );
 
-      int result = await DatabaseHelper.insertOrder(orderSaveData);
+      int result = await DatabaseHelperSaveProduct.insertOrder(orderSaveData);
 
       if (result != 0) {
         print('Data berhasil dimasukkan ke dalam database!');
-        List<OrderSaveData> allOrders = await DatabaseHelper.getOrder();
+        List<OrderSaveData> allOrders = await DatabaseHelperSaveProduct.getOrder();
         print('Semua pesanan dalam database:');
         for (OrderSaveData order in allOrders) {
           print(order.toJson());

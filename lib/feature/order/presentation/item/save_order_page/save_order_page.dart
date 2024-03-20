@@ -1,10 +1,7 @@
-import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:erpku_pos/feature/home/widgets/empty_product.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
-import '../../../../../core/service/database_helper.dart';
+import '../../../../../core/service/database_helper_save_product.dart';
 import '../../../../../core/widgets/components/search_input.dart';
 import '../../../../../core/widgets/components/spaces.dart';
 import '../../../../home/data/entities/save_order_data_model.dart';
@@ -32,7 +29,7 @@ class _SaveOrderPageState extends State<SaveOrderPage> {
   }
 
   Future<void> _fetchData() async {
-    List<OrderSaveData> orders = await DatabaseHelper.getOrder();
+    List<OrderSaveData> orders = await DatabaseHelperSaveProduct.getOrder();
     setState(() {
       _orderList = orders;
     });
@@ -65,8 +62,8 @@ class _SaveOrderPageState extends State<SaveOrderPage> {
             flex: 12,
             child: FutureBuilder<List<OrderSaveData>>(
               future: _searchValue.isEmpty
-                  ? DatabaseHelper.getOrder()
-                  : DatabaseHelper.searchOrderByName(_searchValue),
+                  ? DatabaseHelperSaveProduct.getOrder()
+                  : DatabaseHelperSaveProduct.searchOrderByName(_searchValue),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();

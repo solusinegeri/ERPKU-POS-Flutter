@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../../core/service/database_helper.dart';
+import '../../../../../core/service/database_helper_save_product.dart';
 import '../../../../home/data/entities/save_order_data_model.dart';
 import '../../../../home/widgets/empty_product.dart';
 import '../../../../home/widgets/order_menu.dart';
@@ -135,7 +135,7 @@ class _DetailSaveOrderPageState extends State<DetailSaveOrderPage> {
                       alignment: Alignment.center,
                       child: IconButton(
                         onPressed: () async {
-                          await DatabaseHelper.deleteOrder(widget.orderSaveData);
+                          await DatabaseHelperSaveProduct.deleteOrder(widget.orderSaveData);
                           setState(() {});
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

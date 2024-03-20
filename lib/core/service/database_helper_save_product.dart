@@ -3,18 +3,18 @@ import 'package:path/path.dart';
 
 import '../../feature/home/data/entities/save_order_data_model.dart';
 
-class DatabaseHelper {
+class DatabaseHelperSaveProduct {
   static const int _version = 1;
   static const String _dbName = "ProductSaved.db";
-  static DatabaseHelper? _instance; // Tambahkan atribut instance
+  static DatabaseHelperSaveProduct? _instance; // Tambahkan atribut instance
 
   // Tambahkan constructor private
-  DatabaseHelper._privateConstructor();
+  DatabaseHelperSaveProduct._privateConstructor();
 
   // Getter untuk instance
-  static DatabaseHelper get instance {
+  static DatabaseHelperSaveProduct get instance {
     // Jika instance belum ada, buat instance baru
-    _instance ??= DatabaseHelper._privateConstructor();
+    _instance ??= DatabaseHelperSaveProduct._privateConstructor();
     return _instance!;
   }
 

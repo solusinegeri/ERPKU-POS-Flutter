@@ -1,20 +1,18 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:erpku_pos/feature/home/data/entities/product_item_data_model.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
+import '../../feature/home/data/entities/product_category.dart';
+import '../../feature/home/data/entities/product_model.dart';
 
-import '../../feature/home/data/entities/save_order_data_model.dart';
+class DatabaseHelperProductItem {
+  static const int _version = 2; // Updated version number
+  static const String _dbName = "ProductItem.db";
+  static DatabaseHelperProductItem? _instance;
 
-class DatabaseHelperSaveProduct {
-  static const int _version = 1;
-  static const String _dbName = "ProductSaved.db";
-  static DatabaseHelperSaveProduct? _instance; // Tambahkan atribut instance
+  DatabaseHelperProductItem._privateConstructor();
 
-  // Tambahkan constructor private
-  DatabaseHelperSaveProduct._privateConstructor();
-
-  // Getter untuk instance
-  static DatabaseHelperSaveProduct get instance {
-    // Jika instance belum ada, buat instance baru
-    _instance ??= DatabaseHelperSaveProduct._privateConstructor();
+  static DatabaseHelperProductItem get instance {
+    _instance ??= DatabaseHelperProductItem._privateConstructor();
     return _instance!;
   }
 
@@ -23,10 +21,13 @@ class DatabaseHelperSaveProduct {
       join(await getDatabasesPath(), _dbName),
       onCreate: (db, version) async {
         await db.execute(
-          "CREATE TABLE productSave("
+          "CREATE TABLE productItem("
               "id INTEGER PRIMARY KEY,"
-              "orderName TEXT NOT NULL,"
-              "orderItems TEXT NOT NULL"
+              "image TEXT,"
+              "name TEXT,"
+              "category TEXT,"
+              "price INTEGER,"
+              "stock INTEGER"
               ")",
         );
       },
@@ -34,61 +35,71 @@ class DatabaseHelperSaveProduct {
     );
   }
 
-  static Future<int> insertOrder(OrderSaveData orderSaveData) async {
+  static Future<int> insertOrder(ProductItemData productItemData) async {
     final Database db = await _getDb();
-    return await db.insert(
-      'productSave',
-      orderSaveData.toJson(), // Convert OrderSaveData to JSON
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
 
-  static Future<List<OrderSaveData>> searchOrderByName(String name) async {
-    final Database db = await _getDb(); // Menggunakan _getDb() untuk mendapatkan instance Database
-    final List<Map<String, dynamic>> maps = await db.query(
-      'productSave', // Ubah 'order' menjadi 'productSave' sesuai dengan nama tabel yang benar
-      where: 'orderName LIKE ?', // Ganti 'name' menjadi 'orderName' sesuai dengan kolom yang benar
-      whereArgs: ['%$name%'],
-    );
+    // Extract individual product attributes
+    final List<ProductModel> products = productItemData.productItems;
 
-    return List.generate(maps.length, (i) {
-      return OrderSaveData(
-        id: maps[i]['id'],
-        orderName: maps[i]['orderName'],
-        orderItems: [], // Ganti 'name' menjadi 'orderName' sesuai dengan kolom yang benar
-        // Tambahkan pemetaan atribut lain dari database sesuai kebutuhan
+    // Insert each product into the database
+    int totalInserted = 0;
+    for (final product in products) {
+      int result = await db.insert(
+        'productItem',
+        {
+          'image': product.image,
+          'name': product.name,
+          'category': product.category.toValue(),
+          'price': product.price,
+          'stock': product.stock,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
       );
-    });
+      totalInserted += result;
+    }
+
+    // Return the number of inserted products
+    return totalInserted;
   }
 
-
-  static Future<int> updateOrder(OrderSaveData orderSaveData) async {
+  static Future<int> updateOrder(ProductItemData productItemData) async {
     final Database db = await _getDb();
     return await db.update(
-      'productSave',
-      orderSaveData.toJson(),
+      'productItem',
+      productItemData.toJson(),
       where: 'id = ?',
-      whereArgs: [orderSaveData.id],
+      whereArgs: [productItemData.id],
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  static Future<int> deleteOrder(OrderSaveData orderSaveData) async {
+  static Future<int> deleteOrder(ProductItemData productItemData) async {
     final Database db = await _getDb();
     return await db.delete(
-      'productSave',
+      'productItem',
       where: 'id = ?',
-      whereArgs: [orderSaveData.id],
+      whereArgs: [productItemData.id],
     );
   }
 
-  static Future<List<OrderSaveData>> getOrder() async {
+  static Future<List<ProductItemData>> getOrder() async {
     final Database db = await _getDb();
-    final List<Map<String, dynamic>> maps = await db.query('productSave');
+    final List<Map<String, dynamic>> maps = await db.query('productItem');
 
-    return List.generate(
-      maps.length,
-          (i) => OrderSaveData.fromJson(maps[i]),
-    );
+    // Convert database query results to ProductItemData list
+    return List.generate(maps.length, (i) {
+      return ProductItemData(
+        id: maps[i]['id'],
+        productItems: [
+          ProductModel(
+            image: maps[i]['image'],
+            name: maps[i]['name'],
+            category: ProductCategory.fromValue(maps[i]['category']),
+            price: maps[i]['price'],
+            stock: maps[i]['stock'],
+          ),
+        ],
+      );
+    });
   }
 }
