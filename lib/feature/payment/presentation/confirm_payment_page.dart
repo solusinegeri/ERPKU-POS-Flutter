@@ -17,7 +17,8 @@ import '../widgets/tax_dialog.dart';
 
 class ConfirmPaymentPage extends StatefulWidget {
   final List<OrderItem> selectedProducts;
-  const ConfirmPaymentPage({super.key, required this.selectedProducts});
+  final int? orderNumber;
+  const ConfirmPaymentPage({super.key, required this.selectedProducts, this.orderNumber});
 
   @override
   State<ConfirmPaymentPage> createState() => _ConfirmPaymentPageState();
@@ -51,10 +52,10 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'Konfirmasi',
                               style: TextStyle(
                                 color: ColorValues.primary,
@@ -63,8 +64,8 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
                               ),
                             ),
                             Text(
-                              'Orders #1',
-                              style: TextStyle(
+                              'Orders #${widget.orderNumber}',
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),

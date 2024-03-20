@@ -1,9 +1,10 @@
-import 'package:erpku_pos/feature/order/presentation/history_order_page.dart';
+import 'package:erpku_pos/feature/order/presentation/item/history_order_page/history_order_page.dart';
 import 'package:erpku_pos/feature/order/presentation/item/save_order_page/save_order_page.dart';
+import 'package:erpku_pos/feature/product/presentation/add_product_page.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../../core/theme/color_values.dart';
-import '../../../../../core/widgets/components/spaces.dart';
+import '../../../core/theme/color_values.dart';
+import '../../../core/widgets/components/spaces.dart';
 
 class OrderPage extends StatefulWidget {
   const OrderPage({super.key});
@@ -62,7 +63,7 @@ class _OrderPageState extends State<OrderPage> {
                   ),
                   ListTile(
                     contentPadding: const EdgeInsets.all(12.0),
-                    leading: const Icon(Icons.history_edu_rounded, color: ColorValues.primary,),
+                    leading: const Icon(Icons.history_edu_outlined, color: ColorValues.primary,),
                     title: const Text('Riwayat Pesanan'),
                     subtitle: const Text('Riwayat Pesanan yang sudah dibayar'),
                     textColor: ColorValues.primary,
@@ -70,6 +71,17 @@ class _OrderPageState extends State<OrderPage> {
                         ? ColorValues.blueLight
                         : Colors.transparent,
                     onTap: () => indexValue(1),
+                  ),
+                  ListTile(
+                    contentPadding: const EdgeInsets.all(12.0),
+                    leading: const Icon(Icons.add_box_outlined, color: ColorValues.primary,),
+                    title: const Text('Tambah Produk'),
+                    subtitle: const Text('Tambah Produk atau menu baru'),
+                    textColor: ColorValues.primary,
+                    tileColor: currentIndex == 2
+                        ? ColorValues.blueLight
+                        : Colors.transparent,
+                    onTap: () => indexValue(2),
                   ),
                 ],
               ),
@@ -88,6 +100,7 @@ class _OrderPageState extends State<OrderPage> {
                   children: const [
                     SaveOrderPage(),
                     HistoryOrderPage(),
+                    AddProductPage()
                   ],
                 ),
               ),

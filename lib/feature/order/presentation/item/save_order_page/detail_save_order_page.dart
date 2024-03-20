@@ -1,46 +1,26 @@
 import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:erpku_pos/core/widgets/components/components.dart';
+import 'package:erpku_pos/feature/payment/presentation/confirm_payment_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
-import '../../../../../core/assets/assets.gen.dart';
-import '../../../../home/data/entities/order_item.dart';
-import '../../../../home/data/entities/product_category.dart';
-import '../../../../home/data/entities/product_model.dart';
+import '../../../../../core/service/database_helper.dart';
+import '../../../../home/data/entities/save_order_data_model.dart';
 import '../../../../home/widgets/empty_product.dart';
 import '../../../../home/widgets/order_menu.dart';
 
 class DetailSaveOrderPage extends StatefulWidget {
-  const DetailSaveOrderPage({super.key, required this.orderNumber});
+  const DetailSaveOrderPage({super.key, required this.orderNumber, required this.orderSaveData});
 
   final int orderNumber;
+  final OrderSaveData orderSaveData;
 
   @override
   State<DetailSaveOrderPage> createState() => _DetailSaveOrderPageState();
 }
 
 class _DetailSaveOrderPageState extends State<DetailSaveOrderPage> {
-  Map<ProductModel, int> selectedProducts = {
-    ProductModel(
-        image: Assets.images.menu1.path,
-        name: 'Express Bowl Ayam Rica',
-        category: ProductCategory.food,
-        price: 32000,
-        stock: 10): 1,
-    ProductModel(
-        image: Assets.images.menu2.path,
-        name: 'Crispy Black Pepper Sauce',
-        category: ProductCategory.food,
-        price: 36000,
-        stock: 10): 1,
-    ProductModel(
-        image: Assets.images.menu3.path,
-        name: 'Mie Ayam Teriyaki',
-        category: ProductCategory.food,
-        price: 33000,
-        stock: 10): 1,
-  };
-  int quantity = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -122,11 +102,11 @@ class _DetailSaveOrderPageState extends State<DetailSaveOrderPage> {
                       ),
                     ),
                     const SizedBox(width: 16.0),
-                    const Column(
+                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           'Nama Pemesan',
                           style: TextStyle(
                             color: ColorValues.primary,
@@ -134,10 +114,10 @@ class _DetailSaveOrderPageState extends State<DetailSaveOrderPage> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        SizedBox(height: 4.0),
+                        const SizedBox(height: 4.0),
                         Text(
-                          "Jhone Doe",
-                          style: TextStyle(
+                          widget.orderSaveData.orderName.toString(),
+                          style: const TextStyle(
                             color: ColorValues.subtitle,
                             fontSize: 16,
                           ),
@@ -154,7 +134,17 @@ class _DetailSaveOrderPageState extends State<DetailSaveOrderPage> {
                       ),
                       alignment: Alignment.center,
                       child: IconButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          await DatabaseHelper.deleteOrder(widget.orderSaveData);
+                          setState(() {});
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Order Berhasil Dihapus', style: TextStyle(color: Colors.white),),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          Navigator.pop(context);
+                        },
                         icon: const Icon(
                           Icons.delete,
                           color: Colors.white,
@@ -167,7 +157,7 @@ class _DetailSaveOrderPageState extends State<DetailSaveOrderPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (selectedProducts.isEmpty)
+                    if (widget.orderSaveData.orderItems.isEmpty)
                       const Padding(
                         padding: EdgeInsets.only(top: 80.0),
                         child: IsEmpty(),
@@ -177,35 +167,29 @@ class _DetailSaveOrderPageState extends State<DetailSaveOrderPage> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
-                          final entry = selectedProducts.entries.toList()[index];
                           return OrderMenu(
-                            data: OrderItem(
-                              product: entry.key,
-                              quantity: entry.value,
-                            ),
+                            data: widget.orderSaveData.orderItems[index],
                             onIncrement: () {
-                              selectedProducts[entry.key] =
-                                  (selectedProducts[entry.key] ?? 0) + 1;
+                              widget.orderSaveData.orderItems[index].quantity++;
                               setState(() {});
                             },
                             onDecrement: () {
-                              if (selectedProducts[entry.key] == 1) {
-                                selectedProducts.remove(entry.key);
-                              } else {
-                                selectedProducts[entry.key] =
-                                    (selectedProducts[entry.key] ?? 0) - 1;
+                              if (widget.orderSaveData.orderItems[index].quantity > 1) {
+                                widget.orderSaveData.orderItems[index].quantity--;
+                              }else{
+                                widget.orderSaveData.orderItems.removeAt(index);
                               }
                               setState(() {});
                             },
                             delete: () {
-                              selectedProducts.remove(entry.key);
+                              widget.orderSaveData.orderItems.removeAt(index);
                               setState(() {});
                             },
                           );
                         },
                         separatorBuilder: (context, index) =>
                         const SpaceHeight(1.0),
-                        itemCount: selectedProducts.length,
+                        itemCount: widget.orderSaveData.orderItems.length,
                       ),
                   ],
                 ),
@@ -227,33 +211,18 @@ class _DetailSaveOrderPageState extends State<DetailSaveOrderPage> {
                   ],
                 ),
                 const SpaceHeight(8.0),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Diskon',
-                      style: TextStyle(color: ColorValues.grey),
-                    ),
-                    Text(
-                      'Rp. 0',
-                      style: TextStyle(
-                        color: ColorValues.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SpaceHeight(8.0),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
+                    const Text(
                       'Sub total',
                       style: TextStyle(color: ColorValues.grey),
                     ),
                     Text(
-                      'Rp. 100.000',
-                      style: TextStyle(
+                      NumberFormat.currency(
+                          locale: 'id_ID', symbol: 'Rp')
+                          .format(widget.orderSaveData.orderItems.fold(0, (previousValue, element) => previousValue + (element.product.price * element.quantity)).toInt()),
+                      style: const TextStyle(
                         color: ColorValues.primary,
                         fontWeight: FontWeight.w600,
                       ),
@@ -269,7 +238,17 @@ class _DetailSaveOrderPageState extends State<DetailSaveOrderPage> {
                       const SpaceWidth(8.0),
                       Flexible(
                         child: Button.filled(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ConfirmPaymentPage(
+                                  selectedProducts: widget.orderSaveData.orderItems,
+                                  orderNumber: widget.orderNumber,
+                                ),
+                              ),
+                            );
+                          },
                           label: 'Pembayaran',
                         ),
                       ),
