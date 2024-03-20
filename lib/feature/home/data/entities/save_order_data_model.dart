@@ -1,29 +1,31 @@
+import 'dart:convert';
+
 import 'order_item.dart';
 
 class OrderSaveData {
   final int? id;
-  final String? OrderName;
-  final OrderItem? orderItem;
+  final String? orderName;
+  final List<OrderItem> orderItems;
 
-  const OrderSaveData({
+  OrderSaveData({
     this.id,
-    this.OrderName,
-    this.orderItem,
+    this.orderName,
+    required this.orderItems,
   });
-
-  factory OrderSaveData.fromJson(Map<String, dynamic> json) {
-    return OrderSaveData(
-      id: json['id'],
-      OrderName: json['OrderName'],
-      orderItem: OrderItem.fromJson(json['orderItem']),
-    );
-  }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'OrderName': OrderName,
-      'orderItem': orderItem?.toJson(), // Convert OrderItem to JSON
+      'orderName': orderName,
+      'orderItems': jsonEncode(orderItems.map((item) => item.toJson()).toList())
     };
+  }
+
+  factory OrderSaveData.fromJson(Map<String, dynamic> json) {
+    return OrderSaveData(
+      id: json['id'],
+      orderName: json['orderName'],
+      orderItems: (jsonDecode(json['orderItems']) as List<dynamic>).map((itemJson) => OrderItem.fromJson(itemJson)).toList(),
+    );
   }
 }

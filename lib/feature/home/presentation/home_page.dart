@@ -1,7 +1,6 @@
 import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:erpku_pos/feature/home/data/entities/save_order_data_model.dart';
 import 'package:erpku_pos/feature/home/widgets/empty_product.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -29,7 +28,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final searchController = TextEditingController();
-  final nameController = TextEditingController();
+  final TextEditingController   nameController = TextEditingController();
 
   List<ProductModel> searchResults = [];
   final List<ProductModel> products = [
@@ -512,7 +511,7 @@ class _HomePageState extends State<HomePage> {
                                 // dialog text field untuk input nama pemesan
                                 showDialog(
                                   context: context,
-                                  builder: (context) {
+                                  builder: (BuildContext contextt) {
                                     return AlertDialog(
                                       title: const Text('Nama Pemesan'),
                                       content: TextField(
@@ -524,43 +523,25 @@ class _HomePageState extends State<HomePage> {
                                       actions: [
                                         TextButton(
                                           onPressed: () {
-                                            Navigator.pop(context);
+                                            Navigator.pop(contextt);
                                           },
                                           child: const Text('Batal'),
                                         ),
                                         TextButton(
                                           onPressed: () async {
-                                            final List<OrderSaveData> orderSaveDataList = [];
+                                            final name = nameController.text;
+                                            print('Name: $name');
 
-                                            for (final entry in selectedProducts.entries) {
-                                              final orderSaveDataModul = OrderSaveData(
-                                                id: widget.orderSaveData?.id ?? 0,
-                                                OrderName: nameController.text,
-                                                orderItem: OrderItem(
-                                                  product: entry.key,
-                                                  quantity: entry.value,
-                                                ),
-                                              );
-
-                                              orderSaveDataList.add(orderSaveDataModul);
-                                            }
-
-                                            final int insertedCount = await DatabaseHelper.addSaveProducts(orderSaveDataList);
-
-                                            print('Number of data inserted: $insertedCount');
-
-                                            print('Data berhasil disimpan');
-                                            print(orderSaveDataList);
-
-// Check if the data exists in the database
-                                            final List<OrderSaveData> savedData = await DatabaseHelper.getSaveProduct();
-                                            print('Data yang berhasil disimpan: $savedData');
-
-                                            if (savedData.isNotEmpty) {
-                                              // Check if the saved data matches the inserted data
-                                              print('Data berhasil dimasukkan ke dalam database');
+                                            if (name.isNotEmpty && selectedProducts.isNotEmpty) {
+                                              _saveOrderData(name, _convertToOrderItems(selectedProducts));
                                             } else {
-                                              print('Gagal memasukkan data ke dalam database');
+                                              if (name.isEmpty) {
+                                                print('Nama is null');
+                                              }
+                                              if (selectedProducts.isEmpty) {
+                                                print('Anda belum memilih produk.');
+                                              }
+                                              Navigator.pop(context);
                                             }
                                           },
                                           child: const Text('Simpan'),
@@ -622,4 +603,45 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  List<OrderItem> _convertToOrderItems(Map<ProductModel, int> selectedProducts) {
+    return selectedProducts.entries.map((entry) {
+      return OrderItem(product: entry.key, quantity: entry.value);
+    }).toList();
+  }
+
+  void _saveOrderData(String name, List<OrderItem> orderItems) async {
+    if (name.isNotEmpty && orderItems.isNotEmpty) {
+      final OrderSaveData orderSaveData = OrderSaveData(
+        id: widget.orderSaveData?.id,
+        orderName: name,
+        orderItems: orderItems,
+      );
+
+      int result = await DatabaseHelper.insertOrder(orderSaveData);
+
+      if (result != 0) {
+        print('Data berhasil dimasukkan ke dalam database!');
+        List<OrderSaveData> allOrders = await DatabaseHelper.getOrder();
+        print('Semua pesanan dalam database:');
+        for (OrderSaveData order in allOrders) {
+          print(order.toJson());
+        }
+      } else {
+        print('Gagal memasukkan data ke dalam database.');
+      }
+
+      Navigator.pop(context);
+    } else {
+      if (name.isEmpty) {
+        print('Nama is null');
+      }
+      if (orderItems.isEmpty) {
+        print('Anda belum memilih produk.');
+      }
+      Navigator.pop(context);
+    }
+  }
+
+
 }
