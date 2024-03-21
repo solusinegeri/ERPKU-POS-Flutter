@@ -9,32 +9,33 @@ import '../../../core/service/database_helper_product_item.dart';
 import '../../../core/service/database_helper_save_product.dart';
 import '../../../core/widgets/components/buttons.dart';
 import '../../../core/widgets/components/spaces.dart';
+import '../../home/data/entities/order_item.dart';
+import '../../home/data/entities/product_item_data_model.dart';
+import '../../home/data/entities/product_model.dart';
+import '../../home/widgets/column_button.dart';
+import '../../home/widgets/custom_tab_bar.dart';
+import '../../home/widgets/home_title.dart';
+import '../../home/widgets/order_menu.dart';
+import '../../home/widgets/product_card.dart';
 import '../../payment/presentation/confirm_payment_page.dart';
-import '../data/entities/order_item.dart';
-import '../data/entities/product_item_data_model.dart';
-import '../data/entities/product_model.dart';
-import '../widgets/column_button.dart';
-import '../widgets/custom_tab_bar.dart';
-import '../widgets/home_title.dart';
-import '../widgets/order_menu.dart';
-import '../widgets/product_card.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key, this.orderSaveData});
+class UpdateProductPage extends StatefulWidget {
+  const UpdateProductPage({super.key, this.orderSaveData, required this.orderName, required this.selectedProducts, this.orderNumber});
   final OrderSaveData? orderSaveData;
+  final String orderName;
+  final List<OrderItem> selectedProducts;
+  final int? orderNumber;
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<UpdateProductPage> createState() => _UpdateProductPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _UpdateProductPageState extends State<UpdateProductPage> {
   final searchController = TextEditingController();
-  final TextEditingController   nameController = TextEditingController();
 
   List<ProductModel> searchResults = [];
   List<ProductModel> products = []; // Initialize empty list initially
 
-  final Map<ProductModel, int> selectedProducts = {};
   int quantity = 0;
 
   @override
@@ -71,6 +72,26 @@ class _HomePageState extends State<HomePage> {
     }
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Pilih Produk',
+          style: TextStyle(
+            color: ColorValues.primary,
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.arrow_back,
+            color: ColorValues.primary,
+          ),
+        ),
+      ),
       body: SafeArea(
           child: Row(
         children: [
@@ -128,15 +149,14 @@ class _HomePageState extends State<HomePage> {
                                     itemBuilder: (context, index) => ProductCard(
                                       data: searchResults[index],
                                       onCartButton: () {
-                                        _toggleProductSelection(
-                                            searchResults[index]);
+                                        _toggleProductSelection(searchResults[index]);
                                       },
-                                      qty: selectedProducts
-                                          .containsKey(searchResults[index])
-                                          ? selectedProducts[
-                                      searchResults[index]] ??
-                                          0
-                                          : 0,
+                                      qty: widget.selectedProducts
+                                          .where((item) => item.product == searchResults[index])
+                                          .fold<int>(
+                                        0,
+                                            (previousValue, item) => previousValue + item.quantity,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -166,20 +186,19 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     itemBuilder: (context, index) => ProductCard(
                                       data: searchResults
-                                          .where(
-                                              (element) => element.category.isFood)
+                                          .where((element) => element.category.isFood)
                                           .toList()[index],
                                       onCartButton: () {
-                                        _toggleProductSelection(
-                                            searchResults[index]);
+                                        _toggleProductSelection(searchResults[index]);
                                       },
-                                      qty: selectedProducts
-                                          .containsKey(searchResults[index])
-                                          ? selectedProducts[
-                                      searchResults[index]] ??
-                                          0
-                                          : 0,
+                                      qty: widget.selectedProducts
+                                          .where((item) => item.product == searchResults[index])
+                                          .fold<int>(
+                                        0,
+                                            (previousValue, item) => previousValue + item.quantity,
+                                      ),
                                     ),
+
                                   ),
                                 ),
                               if (searchResults
@@ -209,19 +228,17 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     itemBuilder: (context, index) => ProductCard(
                                       data: searchResults
-                                          .where(
-                                              (element) => element.category.isDrink)
+                                          .where((element) => element.category.isDrink)
                                           .toList()[index],
                                       onCartButton: () {
-                                        _toggleProductSelection(
-                                            searchResults[index]);
+                                        _toggleProductSelection(searchResults[index]);
                                       },
-                                      qty: selectedProducts
-                                          .containsKey(searchResults[index])
-                                          ? selectedProducts[
-                                      searchResults[index]] ??
-                                          0
-                                          : 0,
+                                      qty: widget.selectedProducts
+                                          .where((item) => item.product == searchResults[index])
+                                          .fold<int>(
+                                        0,
+                                            (previousValue, item) => previousValue + item.quantity,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -250,21 +267,20 @@ class _HomePageState extends State<HomePage> {
                                       crossAxisSpacing: 30.0,
                                       mainAxisSpacing: 30.0,
                                     ),
-                                    itemBuilder: (context, index) => ProductCard(
+                                    itemBuilder: (context, index) =>
+                                        ProductCard(
                                       data: searchResults
-                                          .where(
-                                              (element) => element.category.isSnack)
+                                          .where((element) => element.category.isSnack)
                                           .toList()[index],
                                       onCartButton: () {
-                                        _toggleProductSelection(
-                                            searchResults[index]);
+                                        _toggleProductSelection(searchResults[index]);
                                       },
-                                      qty: selectedProducts
-                                          .containsKey(searchResults[index])
-                                          ? selectedProducts[
-                                      searchResults[index]] ??
-                                          0
-                                          : 0,
+                                      qty: widget.selectedProducts
+                                          .where((item) => item.product == searchResults[index])
+                                          .fold<int>(
+                                        0,
+                                            (previousValue, item) => previousValue + item.quantity,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -349,7 +365,7 @@ class _HomePageState extends State<HomePage> {
                         const SpaceHeight(8),
                         const Divider(),
                         const SpaceHeight(8),
-                        if (selectedProducts.isEmpty)
+                        if (widget.selectedProducts.isEmpty)
                           const Padding(
                             padding: EdgeInsets.only(top: 80.0),
                             child: IsEmpty(),
@@ -359,36 +375,29 @@ class _HomePageState extends State<HomePage> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemBuilder: (context, index) {
-                              final entry =
-                                  selectedProducts.entries.toList()[index];
                               return OrderMenu(
-                                data: OrderItem(
-                                  product: entry.key,
-                                  quantity: entry.value,
-                                ),
+                                data: widget.selectedProducts[index],
                                 onIncrement: () {
-                                  selectedProducts[entry.key] =
-                                      (selectedProducts[entry.key] ?? 0) + 1;
+                                  widget.selectedProducts[index].quantity++;
                                   setState(() {});
                                 },
                                 onDecrement: () {
-                                  if (selectedProducts[entry.key] == 1) {
-                                    selectedProducts.remove(entry.key);
-                                  } else {
-                                    selectedProducts[entry.key] =
-                                        (selectedProducts[entry.key] ?? 0) - 1;
+                                  if (widget.selectedProducts[index].quantity > 1) {
+                                    widget.selectedProducts[index].quantity--;
+                                  }else {
+                                    widget.selectedProducts.removeAt(index);
                                   }
                                   setState(() {});
                                 },
                                 delete: () {
-                                  selectedProducts.remove(entry.key);
+                                  widget.selectedProducts.removeAt(index);
                                   setState(() {});
                                 },
                               );
                             },
                             separatorBuilder: (context, index) =>
                                 const SpaceHeight(1.0),
-                            itemCount: selectedProducts.length,
+                            itemCount: widget.selectedProducts.length,
                           ),
                         const SpaceHeight(8.0),
                         Row(
@@ -457,13 +466,13 @@ class _HomePageState extends State<HomePage> {
                             ),
                             Text(
                               NumberFormat.currency(
-                                      locale: 'id_ID', symbol: 'Rp')
-                                  .format(
-                                selectedProducts.entries.fold(
-                                    0,
-                                    (previousValue, element) =>
-                                        previousValue +
-                                        (element.key.price * element.value)),
+                                locale: 'id_ID',
+                                symbol: 'Rp',
+                              ).format(
+                                widget.selectedProducts.fold<double>(
+                                  0,
+                                      (previousValue, orderItem) => previousValue + (orderItem.product.price * orderItem.quantity),
+                                ),
                               ),
                               style: const TextStyle(
                                 color: ColorValues.primary,
@@ -481,89 +490,18 @@ class _HomePageState extends State<HomePage> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24.0, vertical: 16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Button.outlined(
-                              width: 200,
-                              onPressed: () {
-                                // dialog text field untuk input nama pemesan
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext contextt) {
-                                    return AlertDialog(
-                                      title: const Text('Nama Pemesan'),
-                                      content: TextField(
-                                        controller: nameController,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Masukkan nama pemesan',
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(contextt);
-                                          },
-                                          child: const Text('Batal'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () async {
-                                            final name = nameController.text;
-                                            print('Name: $name');
+                      child: Flexible(
+                        child: Button.filled(
+                          onPressed: () {
+                            Map<ProductModel, int> selectedProductsMap = { for (var item in widget.selectedProducts) item.product : item.quantity };
 
-                                            if (name.isNotEmpty && selectedProducts.isNotEmpty) {
-                                              _saveOrderData(name, _convertToOrderItems(selectedProducts));
-                                            } else {
-                                              if (name.isEmpty) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text('Nama pemesan tidak boleh kosong.'),
-                                                    backgroundColor: ColorValues.red,
-                                                  ),
-                                                );
-                                              }
-                                              if (selectedProducts.isEmpty) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text('Anda belum memilih produk.'),
-                                                    backgroundColor: ColorValues.red,
-                                                  ),
-                                                );
-                                              }
-                                              Navigator.pop(context);
-                                            }
-                                          },
-                                          child: const Text('Simpan'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              label: 'Simpan',
-                            ),
-                          ),
-                          const SpaceWidth(8.0),
-                          Flexible(
-                            child: Button.filled(
-                              width: 200,
-                              onPressed: () {
-                                if (selectedProducts.isNotEmpty) {
-                                  _navigateToConfirmPaymentPage();
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Anda belum memilih produk.'),
-                                      backgroundColor: ColorValues.red,
-                                    ),
-                                  );
-                                }
-                              },
-                              label: 'Pembayaran',
-                            ),
-                          ),
-                        ],
+                            _saveOrderData(
+                                widget.orderName,
+                                _convertToOrderItems(selectedProductsMap)
+                            );
+                          },
+                          label: 'Simpan Pesanan',
+                        ),
                       ),
                     ),
                   ),
@@ -577,31 +515,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _toggleProductSelection(ProductModel product) {
-    bool isProductSelected = selectedProducts.containsKey(product);
-
-    if (isProductSelected) {
-      selectedProducts[product] = (selectedProducts[product] ?? 0) + 1;
+    final index = widget.selectedProducts.indexWhere((element) => element.product == product);
+    if (index != -1) {
+      widget.selectedProducts[index].quantity++;
     } else {
-      selectedProducts[product] = 1;
+      widget.selectedProducts.add(OrderItem(product: product, quantity: 1));
     }
-    // Perbarui state di HomePage dengan mengatur ulang selectedProducts
     setState(() {});
   }
 
-  void _navigateToConfirmPaymentPage() {
-    List<OrderItem> selectedProductsList =
-        selectedProducts.entries.map((entry) {
-      return OrderItem(product: entry.key, quantity: entry.value);
-    }).toList();
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            ConfirmPaymentPage(selectedProducts: selectedProductsList),
-      ),
-    );
-  }
 
   List<OrderItem> _convertToOrderItems(Map<ProductModel, int> selectedProducts) {
     return selectedProducts.entries.map((entry) {
@@ -617,7 +540,7 @@ class _HomePageState extends State<HomePage> {
         orderItems: orderItems,
       );
 
-      int result = await DatabaseHelperSaveProduct.insertOrder(orderSaveData);
+      int result = await DatabaseHelperSaveProduct.updateOrder(orderSaveData);
 
       if (result != 0) {
         print('Data berhasil dimasukkan ke dalam database!');

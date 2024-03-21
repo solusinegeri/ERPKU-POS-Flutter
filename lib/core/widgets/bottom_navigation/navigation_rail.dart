@@ -2,6 +2,7 @@ import 'package:erpku_pos/core/extensions/build_context_ext.dart';
 import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:erpku_pos/core/widgets/bottom_navigation/widgets/nav_item.dart';
 import 'package:erpku_pos/feature/order/presentation/order_page.dart';
+import 'package:erpku_pos/feature/product/presentation/product_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -26,6 +27,7 @@ class _NavigationRailDekstopState extends State<NavigationRailDesktop> {
   final List<Widget> _pages = [
     const HomePage(),
     const OrderPage(),
+    const ProductPage(),
     const ReportPage(),
     const PrinterPage(),
     const SettingsPage(),
@@ -90,19 +92,24 @@ class _NavigationRailDekstopState extends State<NavigationRailDesktop> {
                                 onTap: () => _onItemTapped(1),
                               ),
                               NavItem(
-                                iconPath: Assets.icons.discount.path,
+                                iconPath: Assets.icons.product.path,
                                 isActive: _selectedIndex == 2,
                                 onTap: () => _onItemTapped(2),
                               ),
                               NavItem(
-                                iconPath: Assets.icons.dashboard.path,
+                                iconPath: Assets.icons.discount.path,
                                 isActive: _selectedIndex == 3,
                                 onTap: () => _onItemTapped(3),
                               ),
                               NavItem(
-                                iconPath: Assets.icons.setting.path,
+                                iconPath: Assets.icons.dashboard.path,
                                 isActive: _selectedIndex == 4,
                                 onTap: () => _onItemTapped(4),
+                              ),
+                              NavItem(
+                                iconPath: Assets.icons.setting.path,
+                                isActive: _selectedIndex == 5,
+                                onTap: () => _onItemTapped(5),
                               ),
                               NavItem(
                                 iconPath: Assets.icons.logout.path,

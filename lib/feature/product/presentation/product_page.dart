@@ -1,20 +1,18 @@
-import 'package:erpku_pos/feature/order/presentation/item/history_order_page/history_order_page.dart';
-import 'package:erpku_pos/feature/order/presentation/item/save_order_page/save_order_page.dart';
 import 'package:erpku_pos/feature/product/presentation/add_product_page.dart';
+import 'package:erpku_pos/feature/product/presentation/list_product_page.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/color_values.dart';
 import '../../../core/widgets/components/spaces.dart';
 
-class OrderPage extends StatefulWidget {
-  const OrderPage({super.key});
+class ProductPage extends StatefulWidget {
+  const ProductPage({super.key});
 
   @override
-  State<OrderPage> createState() => _OrderPageState();
+  State<ProductPage> createState() => _ProductPageState();
 }
 
-class _OrderPageState extends State<OrderPage> with WidgetsBindingObserver{
-
+class _ProductPageState extends State<ProductPage> {
   int currentIndex = 0;
 
   void indexValue(int index) {
@@ -24,14 +22,8 @@ class _OrderPageState extends State<OrderPage> with WidgetsBindingObserver{
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   @override
@@ -49,7 +41,7 @@ class _OrderPageState extends State<OrderPage> with WidgetsBindingObserver{
                 padding: const EdgeInsets.all(16.0),
                 children: [
                   const Text(
-                    'Order Page',
+                    'Product Page',
                     style: TextStyle(
                       color: ColorValues.primary,
                       fontSize: 28,
@@ -59,9 +51,12 @@ class _OrderPageState extends State<OrderPage> with WidgetsBindingObserver{
                   const SpaceHeight(16.0),
                   ListTile(
                     contentPadding: const EdgeInsets.all(12.0),
-                    leading: const Icon(Icons.bookmark_border, color: ColorValues.primary,),
-                    title: const Text('Daftar Pesanan'),
-                    subtitle: const Text('Daftar Pesanan yang disimpan'),
+                    leading: const Icon(
+                      Icons.add_box_outlined,
+                      color: ColorValues.primary,
+                    ),
+                    title: const Text('Tambah Product'),
+                    subtitle: const Text('Tambah Product Baru'),
                     textColor: ColorValues.primary,
                     tileColor: currentIndex == 0
                         ? ColorValues.blueLight
@@ -70,9 +65,12 @@ class _OrderPageState extends State<OrderPage> with WidgetsBindingObserver{
                   ),
                   ListTile(
                     contentPadding: const EdgeInsets.all(12.0),
-                    leading: const Icon(Icons.history_edu_outlined, color: ColorValues.primary,),
-                    title: const Text('Riwayat Pesanan'),
-                    subtitle: const Text('Riwayat Pesanan yang sudah dibayar'),
+                    leading: const Icon(
+                      Icons.list_alt_outlined,
+                      color: ColorValues.primary,
+                    ),
+                    title: const Text('List Product'),
+                    subtitle: const Text('List Product yang sudah ada'),
                     textColor: ColorValues.primary,
                     tileColor: currentIndex == 1
                         ? ColorValues.blueLight
@@ -94,8 +92,8 @@ class _OrderPageState extends State<OrderPage> with WidgetsBindingObserver{
                 child: IndexedStack(
                   index: currentIndex,
                   children: const [
-                    SaveOrderPage(),
-                    HistoryOrderPage()
+                    AddProductPage(),
+                    ListProductPage(),
                   ],
                 ),
               ),

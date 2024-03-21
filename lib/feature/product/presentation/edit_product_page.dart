@@ -11,19 +11,23 @@ import '../../home/data/entities/product_category.dart';
 import '../../home/data/entities/product_item_data_model.dart';
 import '../../home/data/entities/product_model.dart';
 
-class AddProductPage extends StatefulWidget {
-  const AddProductPage({super.key});
+class EditProductPage extends StatefulWidget {
+  const EditProductPage({super.key, required this.productModel, required this.id});
+  final ProductModel productModel;
+  final int id;
 
   @override
-  State<AddProductPage> createState() => _AddProductPageState();
+  State<EditProductPage> createState() => _EditProductPageState();
 }
 
-class _AddProductPageState extends State<AddProductPage> {
-  final _productController = TextEditingController();
-  final _priceController = TextEditingController();
-  final _categoryController = TextEditingController();
-  final _stockController = TextEditingController();
+class _EditProductPageState extends State<EditProductPage> {
+  late TextEditingController _productController = TextEditingController();
+  late TextEditingController _priceController = TextEditingController();
+  late TextEditingController _categoryController = TextEditingController();
+  late TextEditingController _stockController = TextEditingController();
   final CurrencyInputFormatter _currencyFormatter = CurrencyInputFormatter();
+
+  ProductCategory? _selectedCategory;
 
   final ImagePicker _picker = ImagePicker();
   File? _imageFile;
@@ -39,9 +43,41 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    print(widget.id);
+    _imageFile = widget.productModel.image.isNotEmpty ? File(widget.productModel.image) : null;
+    _productController = TextEditingController(text: widget.productModel.name);
+    _priceController = TextEditingController(text: widget.productModel.price.toString());
+    _categoryController = TextEditingController(text: widget.productModel.category.value);
+    _stockController = TextEditingController(text: widget.productModel.stock.toString());
+    _selectedCategory = widget.productModel.category;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: const Text(
+            'Detail Pesanan',
+            style: TextStyle(
+              color: ColorValues.primary,
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(
+              Icons.arrow_back,
+              color: ColorValues.primary,
+            ),
+          ),
+        ),
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -50,7 +86,7 @@ class _AddProductPageState extends State<AddProductPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Halaman Tambah Produk',
+                    'Halaman Edit dan Detail Produk',
                     style: TextStyle(
                       color: ColorValues.primary,
                       fontSize: 24,
@@ -59,7 +95,7 @@ class _AddProductPageState extends State<AddProductPage> {
                   ),
                   const SpaceHeight(8.0),
                   const Text(
-                    'Tambahkan produk baru untuk dijual',
+                    'Produk yang ada di toko anda',
                     style: TextStyle(
                       color: ColorValues.primary,
                       fontSize: 14,
@@ -89,40 +125,42 @@ class _AddProductPageState extends State<AddProductPage> {
                           color: ColorValues.blueLight,
                           borderRadius: BorderRadius.circular(8.0),
                         ),
-                        child: _imageFile != null
+                        child: _imageFile != null || widget.productModel.image.isNotEmpty
                             ? Container(
-                                width: 100,
-                                height: 100,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: FileImage(_imageFile!),
-                                    fit: BoxFit.cover,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                child: Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Container(
-                                    margin: const EdgeInsets.all(8.0),
-                                    width: 30,
-                                    height: 30,
-                                    decoration: BoxDecoration(
-                                      color: ColorValues.white,
-                                      borderRadius: BorderRadius.circular(50.0),
-                                    ),
-                                    child: const Icon(
-                                      Icons.edit,
-                                      color: ColorValues.primary,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : const Icon(
-                                Icons.camera_alt,
-                                color: ColorValues.primary,
-                                size: 40,
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: _imageFile != null
+                                  ? FileImage(_imageFile!)
+                                  : FileImage(File(widget.productModel.image)),
+                              fit: BoxFit.cover,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                              margin: const EdgeInsets.all(8.0),
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: ColorValues.white,
+                                borderRadius: BorderRadius.circular(50.0),
                               ),
+                              child: const Icon(
+                                Icons.edit,
+                                color: ColorValues.primary,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        )
+                            : const Icon(
+                          Icons.add_a_photo,
+                          color: ColorValues.primary,
+                          size: 40,
+                        )
                       ),
                     ),
                   ),
@@ -191,28 +229,19 @@ class _AddProductPageState extends State<AddProductPage> {
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'Makanan',
-                        child: Text('Makanan'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Minuman',
-                        child: Text('Minuman'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Snack',
-                        child: Text('Snack'),
-                      ),
-                    ],
+                    items: ProductCategory.values
+                        .map((category) => DropdownMenuItem(
+                              value: category,
+                              child: Text(category.value),
+                            ))
+                        .toList(),
                     onChanged: (value) {
                       setState(() {
-                        _categoryController.text = value.toString();
+                        _selectedCategory = value as ProductCategory;
+                        _categoryController.text = _selectedCategory!.value;
                       });
                     },
-                    value: _categoryController.text.isEmpty
-                        ? null
-                        : _categoryController.text,
+                    value: _selectedCategory ?? widget.productModel.category,
                     style: const TextStyle(
                       color: ColorValues.primary,
                       fontSize: 14,
@@ -250,8 +279,7 @@ class _AddProductPageState extends State<AddProductPage> {
                       color: ColorValues.white,
                       child: Button.filled(
                         onPressed: () {
-                          //save product
-                          _saveProduct();
+                          _updateProduct();
                         },
                         label: 'Simpan',
                       ),
@@ -355,11 +383,12 @@ class _AddProductPageState extends State<AddProductPage> {
     }
   }
 
-  void _saveProduct() async {
+  void _updateProduct() async {
     String productName = _productController.text;
     String productPrice = _priceController.text.replaceAll(RegExp(r'[^0-9]'), ''); // Hapus karakter non-numeric
     String productCategory = _categoryController.text;
     String productStock = _stockController.text;
+    print(productName);
 
     // Check if any of the fields is empty
     if (productName.isEmpty || productPrice.isEmpty || productCategory.isEmpty) {
@@ -382,25 +411,19 @@ class _AddProductPageState extends State<AddProductPage> {
       name: productName,
       price: price,
       category: category,
-      image: _imageFile?.path ?? '',
+      image: _imageFile != null ? _imageFile!.path : '', // Ubah bagian ini
       stock: stock ?? 0,
     );
 
-    // Create a product item data
-    ProductItemData productItemData = ProductItemData(productItems: [productModel]);
+    print('Product Model: ${productModel.toJson()}');
 
     try {
-      // Insert the product item data into the database
-      int result = await DatabaseHelperProductItem.insertOrder(productItemData);
+      // Update the product in the database
+      print(widget.id);
+      int result = await DatabaseHelperProductItem.updateOrder(widget.id, productModel);
       print('Result: $result');
 
       if (result != 0) {
-
-        _productController.clear();
-        _priceController.clear();
-        _categoryController.clear();
-        _stockController.clear();
-        _imageFile = null;
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Produk berhasil disimpan'), backgroundColor: Colors.green,),
@@ -408,7 +431,6 @@ class _AddProductPageState extends State<AddProductPage> {
 
         _printDatabaseContents();
       } else {
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Gagal menyimpan produk'), backgroundColor: Colors.red,),
         );
@@ -421,6 +443,7 @@ class _AddProductPageState extends State<AddProductPage> {
       print(e);
     }
   }
+
 
 
   void _printDatabaseContents() async {

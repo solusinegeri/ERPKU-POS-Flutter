@@ -62,16 +62,24 @@ class DatabaseHelperProductItem {
     return totalInserted;
   }
 
-  static Future<int> updateOrder(ProductItemData productItemData) async {
+  static Future<int> updateOrder(int id, ProductModel productModel) async {
     final Database db = await _getDb();
     return await db.update(
       'productItem',
-      productItemData.toJson(),
+      {
+        'image': productModel.image,
+        'name': productModel.name,
+        'category': productModel.category.toValue(),
+        'price': productModel.price,
+        'stock': productModel.stock,
+      },
       where: 'id = ?',
-      whereArgs: [productItemData.id],
+      whereArgs: [id],
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
+
+
 
   static Future<int> deleteOrder(ProductItemData productItemData) async {
     final Database db = await _getDb();

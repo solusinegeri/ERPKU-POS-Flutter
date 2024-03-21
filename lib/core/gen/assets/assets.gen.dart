@@ -97,6 +97,9 @@ class $AssetsIconsGen {
   /// File path: assets/icons/orders.svg
   SvgGenImage get order => const SvgGenImage('assets/icons/order.svg');
 
+  /// File path: assets/icons/orders.svg
+  SvgGenImage get product => const SvgGenImage('assets/icons/product.svg');
+
   /// File path: assets/icons/pajak.svg
   SvgGenImage get pajak => const SvgGenImage('assets/icons/pajak.svg');
 
@@ -154,6 +157,7 @@ class $AssetsIconsGen {
         ongkir,
         orders,
         order,
+        product,
         pajak,
         payments,
         print,

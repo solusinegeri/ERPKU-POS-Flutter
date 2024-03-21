@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:flutter/material.dart';
 
@@ -43,8 +45,8 @@ class ProductCard extends StatelessWidget {
                   ),
                   child: ClipRRect(
                     borderRadius: const BorderRadius.all(Radius.circular(40.0)),
-                    child: Image.asset(
-                      data.image,
+                    child: Image.file(
+                      File(data.image),
                       width: 50,
                       height: 50,
                       fit: BoxFit.cover,

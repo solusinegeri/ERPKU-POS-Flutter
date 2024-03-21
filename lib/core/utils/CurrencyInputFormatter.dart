@@ -10,7 +10,12 @@ class CurrencyInputFormatter extends TextInputFormatter {
 
     final numericRegex = RegExp(r'[^0-9]');
     final newText = newValue.text.replaceAll(numericRegex, '');
-    final formattedText = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp').format(double.parse(newText) / 100);
+
+    // Ubah nilai menjadi double
+    final doubleValue = double.tryParse(newText) ?? 0.0;
+
+    // Format ke mata uang tanpa desimal
+    final formattedText = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(doubleValue);
 
     return TextEditingValue(
       text: formattedText,

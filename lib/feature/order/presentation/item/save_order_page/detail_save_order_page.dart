@@ -1,6 +1,8 @@
 import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:erpku_pos/core/widgets/components/components.dart';
+import 'package:erpku_pos/feature/home/presentation/home_page.dart';
 import 'package:erpku_pos/feature/payment/presentation/confirm_payment_page.dart';
+import 'package:erpku_pos/feature/product/presentation/update_product_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -125,31 +127,64 @@ class _DetailSaveOrderPageState extends State<DetailSaveOrderPage> {
                       ],
                     ),
                     const Spacer(),
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.all(Radius.circular(5)),
-                      ),
-                      alignment: Alignment.center,
-                      child: IconButton(
-                        onPressed: () async {
-                          await DatabaseHelperSaveProduct.deleteOrder(widget.orderSaveData);
-                          setState(() {});
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Order Berhasil Dihapus', style: TextStyle(color: Colors.white),),
-                              backgroundColor: Colors.red,
+                    Row(
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: const BoxDecoration(
+                            color: ColorValues.primary,
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                          ),
+                          alignment: Alignment.center,
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => UpdateProductPage(
+                                    orderName: widget.orderSaveData.orderName.toString(),
+                                    orderNumber: widget.orderNumber,
+                                    orderSaveData: widget.orderSaveData,
+                                    selectedProducts: widget.orderSaveData.orderItems,
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.edit,
+                              color: Colors.white,
                             ),
-                          );
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(
-                          Icons.delete,
-                          color: Colors.white,
+                          ),
                         ),
-                      ),
+                        const SpaceWidth(16.0),
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                          ),
+                          alignment: Alignment.center,
+                          child: IconButton(
+                            onPressed: () async {
+                              await DatabaseHelperSaveProduct.deleteOrder(widget.orderSaveData);
+                              setState(() {});
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Order Berhasil Dihapus', style: TextStyle(color: Colors.white),),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              Navigator.pop(context);
+                            },
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

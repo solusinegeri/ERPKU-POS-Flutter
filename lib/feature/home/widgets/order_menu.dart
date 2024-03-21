@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:erpku_pos/core/extensions/int_ext.dart';
 import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:flutter/material.dart';
@@ -27,8 +29,8 @@ class OrderMenu extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
                 leading: ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(50.0)),
-                  child: Image.asset(
-                    data.product.image,
+                  child: Image.file(
+                    File(data.product.image),
                     width: 40.0,
                     height: 40.0,
                     fit: BoxFit.cover,
@@ -94,38 +96,38 @@ class OrderMenu extends StatelessWidget {
           ],
         ),
         const SpaceHeight(16),
-        Row(
-          children: [
-            Flexible(
-              child: TextFormField(
-                controller: noteController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  hintText: 'Catatan pesanan',
-                ),
-              ),
-            ),
-            const SpaceWidth(12),
-            GestureDetector(
-              onTap: delete,
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
-                height: 60.0,
-                width: 60.0,
-                decoration: const BoxDecoration(
-                  color: ColorValues.primary,
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                ),
-                child: Assets.icons.delete.svg(
-                  colorFilter:
-                      const ColorFilter.mode(ColorValues.white, BlendMode.srcIn),
-                ),
-              ),
-            ),
-          ],
-        ),
+        // Row(
+        //   children: [
+        //     Flexible(
+        //       child: TextFormField(
+        //         controller: noteController,
+        //         decoration: InputDecoration(
+        //           border: OutlineInputBorder(
+        //             borderRadius: BorderRadius.circular(8.0),
+        //           ),
+        //           hintText: 'Catatan pesanan',
+        //         ),
+        //       ),
+        //     ),
+        //     const SpaceWidth(12),
+        //     GestureDetector(
+        //       onTap: delete,
+        //       child: Container(
+        //         padding: const EdgeInsets.all(16.0),
+        //         height: 60.0,
+        //         width: 60.0,
+        //         decoration: const BoxDecoration(
+        //           color: ColorValues.primary,
+        //           borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        //         ),
+        //         child: Assets.icons.delete.svg(
+        //           colorFilter:
+        //               const ColorFilter.mode(ColorValues.white, BlendMode.srcIn),
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
       ],
     );
   }

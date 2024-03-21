@@ -39,69 +39,72 @@ class _SaveOrderPageState extends State<SaveOrderPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Flexible(
-              child: SizedBox(
-                child: SearchInput(
-                  controller: _searchController,
-                  onChanged: (value) {
-                    setState(() {
-                      _searchValue = value; // Simpan nilai pencarian ke dalam _searchValue
-                    });
-                  },
-                  hintText: 'Cari Nama Pemesan',
+      body: RefreshIndicator(
+        onRefresh: _fetchData,
+        child: Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Flexible(
+                child: SizedBox(
+                  child: SearchInput(
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchValue = value; // Simpan nilai pencarian ke dalam _searchValue
+                      });
+                    },
+                    hintText: 'Cari Nama Pemesan',
+                  ),
                 ),
               ),
             ),
-          ),
-          const SpaceHeight(16.0),
-          Flexible(
-            flex: 12,
-            child: FutureBuilder<List<OrderSaveData>>(
-              future: _searchValue.isEmpty
-                  ? DatabaseHelperSaveProduct.getOrder()
-                  : DatabaseHelperSaveProduct.searchOrderByName(_searchValue),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  List<OrderSaveData> _orderList = snapshot.data ?? [];
+            const SpaceHeight(16.0),
+            Flexible(
+              flex: 12,
+              child: FutureBuilder<List<OrderSaveData>>(
+                future: _searchValue.isEmpty
+                    ? DatabaseHelperSaveProduct.getOrder()
+                    : DatabaseHelperSaveProduct.searchOrderByName(_searchValue),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    List<OrderSaveData> _orderList = snapshot.data ?? [];
 
-                  if (_orderList.isEmpty) {
-                    return const IsEmpty();
-                  }
+                    if (_orderList.isEmpty) {
+                      return const IsEmpty();
+                    }
 
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _orderList.length,
-                    itemBuilder: (context, index) {
-                      return CardSaveOrder(
-                        orderName: _orderList[index].orderName ?? '',
-                        orderNumber: index + 1,
-                        onTap: () async {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DetailSaveOrderPage(
-                                orderNumber: index + 1,
-                                orderSaveData: _orderList[index],
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _orderList.length,
+                      itemBuilder: (context, index) {
+                        return CardSaveOrder(
+                          orderName: _orderList[index].orderName ?? '',
+                          orderNumber: index + 1,
+                          onTap: () async {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailSaveOrderPage(
+                                  orderNumber: index + 1,
+                                  orderSaveData: _orderList[index],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                }
-              },
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
