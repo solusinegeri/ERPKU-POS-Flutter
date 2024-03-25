@@ -85,22 +85,42 @@ class _EditProductPageState extends State<EditProductPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Halaman Edit dan Detail Produk',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SpaceHeight(8.0),
-                  const Text(
-                    'Produk yang ada di toko anda',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
+                  Row(
+                    children: [
+                      const Text(
+                        'Halaman Edit dan Detail Produk',
+                        style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SpaceHeight(8.0),
+                      const Text(
+                        'Produk yang ada di toko anda',
+                        style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          DatabaseHelperProductItem.deleteOrder(
+                            ProductItemData(
+                              id: widget.id,
+                              productItems: [widget.productModel],
+                            ),
+                          );
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
                   ),
                   const SpaceHeight(24.0),
                   const Text(

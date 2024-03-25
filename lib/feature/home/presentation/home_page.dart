@@ -598,7 +598,7 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            ConfirmPaymentPage(selectedProducts: selectedProductsList),
+            ConfirmPaymentPage(selectedProducts: selectedProductsList, orderSaveData: widget.orderSaveData,),
       ),
     );
   }

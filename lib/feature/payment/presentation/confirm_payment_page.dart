@@ -1,3 +1,4 @@
+import 'package:erpku_pos/core/service/database_helper_history_payment_product.dart';
 import 'package:erpku_pos/feature/home/data/entities/order_item.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +8,8 @@ import '../../../core/theme/color_values.dart';
 import '../../../core/utils/CurrencyInputFormatter.dart';
 import '../../../core/widgets/components/buttons.dart';
 import '../../../core/widgets/components/spaces.dart';
+import '../../home/data/entities/product_model.dart';
+import '../../home/data/entities/save_order_data_model.dart';
 import '../../home/widgets/column_button.dart';
 import '../../home/widgets/empty_product.dart';
 import '../../home/widgets/order_menu.dart';
@@ -18,7 +21,8 @@ import '../widgets/tax_dialog.dart';
 class ConfirmPaymentPage extends StatefulWidget {
   final List<OrderItem> selectedProducts;
   final int? orderNumber;
-  const ConfirmPaymentPage({super.key, required this.selectedProducts, this.orderNumber});
+  final OrderSaveData? orderSaveData;
+  const ConfirmPaymentPage({super.key, required this.selectedProducts, this.orderNumber, this.orderSaveData});
 
   @override
   State<ConfirmPaymentPage> createState() => _ConfirmPaymentPageState();
@@ -441,16 +445,11 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
                                       ),
                                     );
                                   } else {
-                                    await showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (context) => SuccessPaymentDialog(
-                                        nominalPayment: totalPriceController.text,
-                                        totalPayment: NumberFormat.currency(locale: 'id', symbol: 'Rp').format(widget.selectedProducts.fold(0, (previousValue, element) => previousValue + (element.product.price * element.quantity)) * 1.11),
-                                        chargePaymennt: NumberFormat.currency(locale: 'id', symbol: 'Rp').format(int.parse(totalPriceController.text.replaceAll('Rp', '').replaceAll('.', '')) - (widget.selectedProducts.fold(0, (previousValue, element) => previousValue + (element.product.price * element.quantity)) * 1.11)),
-                                        methodPayment: 'Tunai',
-                                      ),
-                                    );
+                                    _saveHistoryOrderData('Order #${widget.orderNumber}',
+                                        totalPriceController.text,
+                                        widget.selectedProducts);
+
+
                                   }
                                 },
                                 label: 'Bayar',
@@ -468,5 +467,55 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
         ],
       ),
     );
+  }
+
+  List<OrderItem> _convertToOrderItems(Map<ProductModel, int> selectedProducts) {
+    return selectedProducts.entries.map((entry) {
+      return OrderItem(product: entry.key, quantity: entry.value);
+    }).toList();
+  }
+
+  void _saveHistoryOrderData(String name, String nominal, List<OrderItem> orderItems) async {
+    if (name.isNotEmpty && orderItems.isNotEmpty) {
+      final OrderSaveData orderSaveData = OrderSaveData(
+        id: widget.orderSaveData?.id,
+        orderName: name,
+        orderNominal: nominal,
+        orderItems: orderItems,
+      );
+
+      int result = await DatabaseHelperHistoryPaymentProduct.insertHistoryOrder(orderSaveData);
+
+      if (result != 0) {
+        print('Data berhasil dimasukkan ke dalam database!');
+        List<OrderSaveData> allOrders = await DatabaseHelperHistoryPaymentProduct.getHistoryOrder();
+        print('Semua pesanan dalam database:');
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => SuccessPaymentDialog(
+            nominalPayment: totalPriceController.text,
+            totalPayment: NumberFormat.currency(locale: 'id', symbol: 'Rp').format(widget.selectedProducts.fold(0, (previousValue, element) => previousValue + (element.product.price * element.quantity)) * 1.11),
+            chargePaymennt: NumberFormat.currency(locale: 'id', symbol: 'Rp').format(int.parse(totalPriceController.text.replaceAll('Rp', '').replaceAll('.', '')) - (widget.selectedProducts.fold(0, (previousValue, element) => previousValue + (element.product.price * element.quantity)) * 1.11)),
+            methodPayment: 'Tunai',
+          ),
+        );
+        for (OrderSaveData order in allOrders) {
+          print(order.toJson());
+        }
+      } else {
+        print('Gagal memasukkan data ke dalam database.');
+      }
+
+      Navigator.pop(context);
+    } else {
+      if (name.isEmpty) {
+        print('Nama is null');
+      }
+      if (orderItems.isEmpty) {
+        print('Anda belum memilih produk.');
+      }
+      Navigator.pop(context);
+    }
   }
 }
