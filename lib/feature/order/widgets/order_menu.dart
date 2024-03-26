@@ -17,8 +17,8 @@ class OrderMenuHistory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
@@ -45,12 +45,13 @@ class OrderMenuHistory extends StatelessWidget {
               ),
             ),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
                   width: 30.0,
                   child: Center(
                       child: Text(
-                   qty,
+                   "$qty X",
                   )),
                 ),
               ],

@@ -280,6 +280,7 @@ class _DetailSaveOrderPageState extends State<DetailSaveOrderPage> {
                                 builder: (context) => ConfirmPaymentPage(
                                   selectedProducts: widget.orderSaveData.orderItems,
                                   orderNumber: widget.orderNumber,
+                                    orderSaveData: widget.orderSaveData,
                                 ),
                               ),
                             );

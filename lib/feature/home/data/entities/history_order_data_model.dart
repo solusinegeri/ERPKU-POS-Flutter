@@ -2,14 +2,16 @@ import 'dart:convert';
 
 import 'order_item.dart';
 
-class OrderSaveData {
+class HistoryOrderSaveData {
   final int? id;
   final String? orderName;
+  final String? orderNominal;
   final List<OrderItem> orderItems;
 
-  OrderSaveData({
+  HistoryOrderSaveData({
     this.id,
     this.orderName,
+    this.orderNominal,
     required this.orderItems,
   });
 
@@ -17,14 +19,16 @@ class OrderSaveData {
     return {
       'id': id,
       'orderName': orderName,
+      'orderNominal': orderNominal,
       'orderItems': jsonEncode(orderItems.map((item) => item.toJson()).toList())
     };
   }
 
-  factory OrderSaveData.fromJson(Map<String, dynamic> json) {
-    return OrderSaveData(
+  factory HistoryOrderSaveData.fromJson(Map<String, dynamic> json) {
+    return HistoryOrderSaveData(
       id: json['id'],
       orderName: json['orderName'],
+      orderNominal: json['orderNominal'],
       orderItems: (jsonDecode(json['orderItems']) as List<dynamic>).map((itemJson) => OrderItem.fromJson(itemJson)).toList(),
     );
   }

@@ -1,9 +1,11 @@
 import 'package:erpku_pos/core/service/database_helper_history_payment_product.dart';
+import 'package:erpku_pos/feature/home/data/entities/history_order_data_model.dart';
 import 'package:erpku_pos/feature/home/data/entities/order_item.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/gen/assets/assets.gen.dart';
+import '../../../core/service/database_helper_save_product.dart';
 import '../../../core/theme/color_values.dart';
 import '../../../core/utils/CurrencyInputFormatter.dart';
 import '../../../core/widgets/components/buttons.dart';
@@ -477,19 +479,25 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
 
   void _saveHistoryOrderData(String name, String nominal, List<OrderItem> orderItems) async {
     if (name.isNotEmpty && orderItems.isNotEmpty) {
-      final OrderSaveData orderSaveData = OrderSaveData(
+      final HistoryOrderSaveData historyOrderSaveData = HistoryOrderSaveData(
         id: widget.orderSaveData?.id,
         orderName: name,
         orderNominal: nominal,
         orderItems: orderItems,
       );
 
-      int result = await DatabaseHelperHistoryPaymentProduct.insertHistoryOrder(orderSaveData);
+      int result = await DatabaseHelperHistoryPaymentProduct.insertHistoryOrder(historyOrderSaveData);
 
       if (result != 0) {
         print('Data berhasil dimasukkan ke dalam database!');
-        List<OrderSaveData> allOrders = await DatabaseHelperHistoryPaymentProduct.getHistoryOrder();
+        List<HistoryOrderSaveData> allOrders = await DatabaseHelperHistoryPaymentProduct.getHistoryOrder();
         print('Semua pesanan dalam database:');
+        print(widget.orderSaveData);
+        int i = 1;
+        if (name == "Order #${i++}" ) {
+          await DatabaseHelperSaveProduct.deleteOrder(widget.orderSaveData!);
+          setState(() {});
+        }
         await showDialog(
           context: context,
           barrierDismissible: false,
@@ -500,7 +508,7 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
             methodPayment: 'Tunai',
           ),
         );
-        for (OrderSaveData order in allOrders) {
+        for (HistoryOrderSaveData order in allOrders) {
           print(order.toJson());
         }
       } else {

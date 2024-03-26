@@ -1,8 +1,7 @@
-import 'package:erpku_pos/feature/home/data/entities/order_item.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-import '../../feature/home/data/entities/save_order_data_model.dart';
+import '../../feature/home/data/entities/history_order_data_model.dart';
 
 class DatabaseHelperHistoryPaymentProduct {
   static const int _version = 1;
@@ -36,7 +35,7 @@ class DatabaseHelperHistoryPaymentProduct {
     );
   }
 
-  static Future<int> insertHistoryOrder(OrderSaveData orderSaveData) async {
+  static Future<int> insertHistoryOrder(HistoryOrderSaveData orderSaveData) async {
     final Database db = await _getDb();
     return await db.insert(
       'productHistoryPaymentOrder',
@@ -45,7 +44,7 @@ class DatabaseHelperHistoryPaymentProduct {
     );
   }
 
-  static Future<List<OrderSaveData>> searchHistoryOrderByName(String name) async {
+  static Future<List<HistoryOrderSaveData>> searchHistoryOrderByName(String name) async {
     final Database db = await _getDb(); // Menggunakan _getDb() untuk mendapatkan instance Database
     final List<Map<String, dynamic>> maps = await db.query(
       'productHistoryPaymentOrder', // Ubah 'order' menjadi 'productSave' sesuai dengan nama tabel yang benar
@@ -54,7 +53,7 @@ class DatabaseHelperHistoryPaymentProduct {
     );
 
     return List.generate(maps.length, (i) {
-      return OrderSaveData(
+      return HistoryOrderSaveData(
         id: maps[i]['id'],
         orderName: maps[i]['orderName'],
         orderNominal: maps[i]['orderNominal'],
@@ -65,33 +64,33 @@ class DatabaseHelperHistoryPaymentProduct {
   }
 
 
-  static Future<int> updateHistoryOrder(OrderSaveData orderSaveData) async {
+  static Future<int> updateHistoryOrder(HistoryOrderSaveData historyOrderSaveData) async {
     final Database db = await _getDb();
     return await db.update(
       'productHistoryPaymentOrder',
-      orderSaveData.toJson(),
+      historyOrderSaveData.toJson(),
       where: 'id = ?',
-      whereArgs: [orderSaveData.id],
+      whereArgs: [historyOrderSaveData.id],
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  static Future<int> deleteHistoryOrder(OrderSaveData orderSaveData) async {
+  static Future<int> deleteHistoryOrder(HistoryOrderSaveData historyOrderSaveData) async {
     final Database db = await _getDb();
     return await db.delete(
       'productHistoryPaymentOrder',
       where: 'id = ?',
-      whereArgs: [orderSaveData.id],
+      whereArgs: [historyOrderSaveData.id],
     );
   }
 
-  static Future<List<OrderSaveData>> getHistoryOrder() async {
+  static Future<List<HistoryOrderSaveData>> getHistoryOrder() async {
     final Database db = await _getDb();
     final List<Map<String, dynamic>> maps = await db.query('productHistoryPaymentOrder');
 
     return List.generate(
       maps.length,
-          (i) => OrderSaveData.fromJson(maps[i]),
+          (i) => HistoryOrderSaveData.fromJson(maps[i]),
     );
   }
 

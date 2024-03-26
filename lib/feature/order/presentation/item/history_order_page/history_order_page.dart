@@ -1,12 +1,9 @@
 import 'package:erpku_pos/core/service/database_helper_history_payment_product.dart';
 import 'package:erpku_pos/core/theme/color_values.dart';
-import 'package:erpku_pos/feature/home/data/entities/product_item_data_model.dart';
+import 'package:erpku_pos/feature/home/data/entities/history_order_data_model.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../../core/widgets/components/spaces.dart';
-import '../../../../home/data/entities/order_item.dart';
 import '../../../../home/data/entities/save_order_data_model.dart';
-import '../../../../home/widgets/order_menu.dart';
 import '../../../widgets/order_menu.dart';
 
 class HistoryOrderPage extends StatefulWidget {
@@ -18,9 +15,7 @@ class HistoryOrderPage extends StatefulWidget {
 
 class _HistoryOrderPageState extends State<HistoryOrderPage> {
 
-  final TextEditingController _searchController = TextEditingController();
-  List<OrderSaveData> _orderList = [];
-  String _searchValue = '';
+  List<HistoryOrderSaveData> _orderList = [];
 
   @override
   void initState() {
@@ -30,10 +25,10 @@ class _HistoryOrderPageState extends State<HistoryOrderPage> {
   }
 
   Future<void> _fetchData() async {
-    List<OrderSaveData> orders = await DatabaseHelperHistoryPaymentProduct.getHistoryOrder();
+    List<HistoryOrderSaveData> orders = await DatabaseHelperHistoryPaymentProduct.getHistoryOrder();
     setState(() {
       _orderList = orders;
-      for (OrderSaveData order in orders) {
+      for (HistoryOrderSaveData order in orders) {
         print(order.toJson());
       }
     });
@@ -45,38 +40,43 @@ class _HistoryOrderPageState extends State<HistoryOrderPage> {
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: Flexible(
+        child:Flexible(
           child: ListView.builder(
             itemCount: _orderList.length,
             itemBuilder: (context, index) {
+              final reversedIndex = _orderList.length - index - 1;
+              final order = _orderList[reversedIndex];
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Order #${_orderList[index].id.toString()}",
+                    "Order #${order.id.toString()}",
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: ColorValues.primary
+                      color: ColorValues.primary,
                     ),
                   ),
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, innerinIndex) {
+                    itemBuilder: (context, innerIndex) {
+                      final innerItemIndex = order.orderItems.length - innerIndex - 1;
+                      final orderItem = order.orderItems[innerItemIndex];
                       return OrderMenuHistory(
-                        data: _orderList[index].orderItems[innerinIndex],
-                        orderPayment: _orderList[index].orderNominal.toString(),
-                        qty: _orderList[index].orderItems[innerinIndex].quantity.toString(),
+                        data: orderItem,
+                        orderPayment: order.orderNominal.toString(),
+                        qty: orderItem.quantity.toString(),
                       );
                     },
-                    itemCount: _orderList[index].orderItems.length,
+                    itemCount: order.orderItems.length,
                   ),
                 ],
               );
             },
           ),
         ),
+
       ),
     );
   }
