@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:erpku_pos/core/widgets/components/components.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -81,232 +82,242 @@ class _EditProductPageState extends State<EditProductPage> {
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
-            child: Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Halaman Edit dan Detail Produk',
+                                style: TextStyle(
+                                  color: ColorValues.primary,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SpaceHeight(8.0),
+                              Text(
+                                'Produk yang ada di toko anda',
+                                style: TextStyle(
+                                  color: ColorValues.primary,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            onPressed: () {
+                              DatabaseHelperProductItem.deleteOrder(
+                                ProductItemData(
+                                  id: widget.id,
+                                  productItems: [widget.productModel],
+                                ),
+                              );
+                              Navigator.pop(context);
+                            },
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SpaceHeight(24.0),
                       const Text(
-                        'Halaman Edit dan Detail Produk',
+                        'Foto Produk',
                         style: TextStyle(
                           color: ColorValues.primary,
-                          fontSize: 24,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SpaceHeight(16.0),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: GestureDetector(
+                          onTap: () {
+                            _showBottomSheetPhoto(context);
+                          },
+                          child: Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: ColorValues.blueLight,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: _imageFile != null || widget.productModel.image.isNotEmpty
+                                ? Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: _imageFile != null
+                                      ? Image.network(_imageFile!.path).image
+                                      : FileImage(File(widget.productModel.image)),
+                                  fit: BoxFit.cover,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Align(
+                                alignment: Alignment.bottomRight,
+                                child: Container(
+                                  margin: const EdgeInsets.all(8.0),
+                                  width: 30,
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                    color: ColorValues.white,
+                                    borderRadius: BorderRadius.circular(50.0),
+                                  ),
+                                  child: const Icon(
+                                    Icons.edit,
+                                    color: ColorValues.primary,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            )
+                                : const Icon(
+                              Icons.add_a_photo,
+                              color: ColorValues.primary,
+                              size: 40,
+                            )
+                          ),
+                        ),
+                      ),
+                      const SpaceHeight(24.0),
+                      const Text(
+                        'Nama Produk',
+                        style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SpaceHeight(8.0),
+                      TextFormField(
+                        controller: _productController,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          hintText: 'Masukkan Nama Produk',
+                        ),
+                      ),
+                      const SpaceHeight(24.0),
                       const Text(
-                        'Produk yang ada di toko anda',
+                        'Harga Produk',
                         style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SpaceHeight(8.0),
+                      TextFormField(
+                        controller: _priceController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [_currencyFormatter],
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          hintText: 'Masukkan Harga Produk',
+                        ),
+                      ),
+                      const SpaceHeight(24.0),
+                      const Text(
+                        'Kategori Produk',
+                        style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SpaceHeight(8.0),
+                      //dropdown textfield category
+                      DropdownButtonFormField(
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        items: ProductCategory.values
+                            .map((category) => DropdownMenuItem(
+                                  value: category,
+                                  child: Text(category.value),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCategory = value as ProductCategory;
+                            _categoryController.text = _selectedCategory!.value;
+                          });
+                        },
+                        value: _selectedCategory ?? widget.productModel.category,
+                        style: const TextStyle(
                           color: ColorValues.primary,
                           fontSize: 14,
                           fontWeight: FontWeight.normal,
                         ),
                       ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () {
-                          DatabaseHelperProductItem.deleteOrder(
-                            ProductItemData(
-                              id: widget.id,
-                              productItems: [widget.productModel],
-                            ),
-                          );
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(
-                          Icons.delete,
-                          color: Colors.red,
+                      const SpaceHeight(24.0),
+                      const Text(
+                        'Stok Produk',
+                        style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SpaceHeight(8.0),
+                      TextFormField(
+                        controller: _stockController,
+                        keyboardType: TextInputType.number,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          hintText: 'Masukkan Stok Produk',
+                        ),
+                      ),
+                      const SpaceHeight(24.0),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: ColoredBox(
+                          color: ColorValues.white,
+                          child: Button.filled(
+                            onPressed: () {
+                              _updateProduct();
+                            },
+                            label: 'Simpan',
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SpaceHeight(24.0),
-                  const Text(
-                    'Foto Produk',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SpaceHeight(16.0),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: GestureDetector(
-                      onTap: () {
-                        _showBottomSheetPhoto(context);
-                      },
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: ColorValues.blueLight,
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: _imageFile != null || widget.productModel.image.isNotEmpty
-                            ? Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: _imageFile != null
-                                  ? FileImage(_imageFile!)
-                                  : FileImage(File(widget.productModel.image)),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Align(
-                            alignment: Alignment.bottomRight,
-                            child: Container(
-                              margin: const EdgeInsets.all(8.0),
-                              width: 30,
-                              height: 30,
-                              decoration: BoxDecoration(
-                                color: ColorValues.white,
-                                borderRadius: BorderRadius.circular(50.0),
-                              ),
-                              child: const Icon(
-                                Icons.edit,
-                                color: ColorValues.primary,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                        )
-                            : const Icon(
-                          Icons.add_a_photo,
-                          color: ColorValues.primary,
-                          size: 40,
-                        )
-                      ),
-                    ),
-                  ),
-                  const SpaceHeight(24.0),
-                  const Text(
-                    'Nama Produk',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SpaceHeight(8.0),
-                  TextFormField(
-                    controller: _productController,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      hintText: 'Masukkan Nama Produk',
-                    ),
-                  ),
-                  const SpaceHeight(24.0),
-                  const Text(
-                    'Harga Produk',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SpaceHeight(8.0),
-                  TextFormField(
-                    controller: _priceController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [_currencyFormatter],
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      hintText: 'Masukkan Harga Produk',
-                    ),
-                  ),
-                  const SpaceHeight(24.0),
-                  const Text(
-                    'Kategori Produk',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SpaceHeight(8.0),
-                  //dropdown textfield category
-                  DropdownButtonFormField(
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                    items: ProductCategory.values
-                        .map((category) => DropdownMenuItem(
-                              value: category,
-                              child: Text(category.value),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedCategory = value as ProductCategory;
-                        _categoryController.text = _selectedCategory!.value;
-                      });
-                    },
-                    value: _selectedCategory ?? widget.productModel.category,
-                    style: const TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                  const SpaceHeight(24.0),
-                  const Text(
-                    'Stok Produk',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SpaceHeight(8.0),
-                  TextFormField(
-                    controller: _stockController,
-                    keyboardType: TextInputType.number,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      hintText: 'Masukkan Stok Produk',
-                    ),
-                  ),
-                  const SpaceHeight(24.0),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: ColoredBox(
-                      color: ColorValues.white,
-                      child: Button.filled(
-                        onPressed: () {
-                          _updateProduct();
-                        },
-                        label: 'Simpan',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ));

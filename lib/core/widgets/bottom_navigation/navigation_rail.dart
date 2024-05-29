@@ -29,7 +29,7 @@ class _NavigationRailDekstopState extends State<NavigationRailDesktop> {
     const OrderPage(),
     const ProductPage(),
     const ReportPage(),
-    const PrinterPage(),
+    // const PrinterPage(),
     const SettingsPage(),
   ];
 
@@ -58,6 +58,7 @@ class _NavigationRailDekstopState extends State<NavigationRailDesktop> {
       ),
     ) :SafeArea(
       child: Scaffold(
+        backgroundColor: ColorValues.white,
         body: OrientationBuilder(
           builder: (context, orientation) {
             if (orientation == Orientation.portrait){
@@ -73,55 +74,97 @@ class _NavigationRailDekstopState extends State<NavigationRailDesktop> {
                 children: [
                   SingleChildScrollView(
                     child: ClipRRect(
-                      borderRadius:
-                      const BorderRadius.horizontal(right: Radius.circular(16.0)),
+                      borderRadius: const BorderRadius.horizontal(right: Radius.circular(16.0)),
                       child: SizedBox(
-                        height: context.deviceHeight - 20.0,
+                        height: MediaQuery.of(context).size.height - 20.0,
                         child: ColoredBox(
                           color: ColorValues.primary,
                           child: Column(
                             children: [
-                              NavItem(
-                                iconPath: Assets.icons.homeResto.path,
-                                isActive: _selectedIndex == 0,
-                                onTap: () => _onItemTapped(0),
+                              Flexible(
+                                child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      double iconSize = constraints.maxHeight * 0.3; // Menggunakan 80% dari tinggi yang tersedia
+                                      return NavItem(
+                                        iconPath: Assets.icons.homeResto.path,
+                                        iconSize: iconSize,
+                                        isActive: _selectedIndex == 0,
+                                        onTap: () => _onItemTapped(0),
+                                      );
+                                  }
+                                ),
                               ),
-                              NavItem(
-                                iconPath: Assets.icons.order.path,
-                                isActive: _selectedIndex == 1,
-                                onTap: () => _onItemTapped(1),
+                              Flexible(
+                                child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      double iconSize = constraints.maxHeight * 0.3; // Menggunakan 80% dari tinggi yang tersedia
+                                    return NavItem(
+                                      iconPath: Assets.icons.order.path,
+                                      iconSize: iconSize,
+                                      isActive: _selectedIndex == 1,
+                                      onTap: () => _onItemTapped(1),
+                                    );
+                                  }
+                                ),
                               ),
-                              NavItem(
-                                iconPath: Assets.icons.product.path,
-                                isActive: _selectedIndex == 2,
-                                onTap: () => _onItemTapped(2),
+                              Flexible(
+                                child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      double iconSize = constraints.maxHeight * 0.3;
+                                    return NavItem(
+                                      iconPath: Assets.icons.product.path,
+                                      iconSize: iconSize,
+                                      isActive: _selectedIndex == 2,
+                                      onTap: () => _onItemTapped(2),
+                                    );
+                                  }
+                                ),
                               ),
-                              NavItem(
-                                iconPath: Assets.icons.discount.path,
-                                isActive: _selectedIndex == 3,
-                                onTap: () => _onItemTapped(3),
+                              Flexible(
+                                child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      double iconSize = constraints.maxHeight * 0.3;
+                                    return NavItem(
+                                      iconPath: Assets.icons.discount.path,
+                                      iconSize: iconSize,
+                                      isActive: _selectedIndex == 3,
+                                      onTap: () => _onItemTapped(3),
+                                    );
+                                  }
+                                ),
                               ),
-                              NavItem(
-                                iconPath: Assets.icons.dashboard.path,
-                                isActive: _selectedIndex == 4,
-                                onTap: () => _onItemTapped(4),
+                              Flexible(
+                                child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      double iconSize = constraints.maxHeight * 0.3;
+                                    return NavItem(
+                                      iconPath: Assets.icons.setting.path,
+                                      iconSize: iconSize,
+                                      isActive: _selectedIndex == 4,
+                                      onTap: () => _onItemTapped(4),
+                                    );
+                                  }
+                                ),
                               ),
-                              NavItem(
-                                iconPath: Assets.icons.setting.path,
-                                isActive: _selectedIndex == 5,
-                                onTap: () => _onItemTapped(5),
-                              ),
-                              NavItem(
-                                iconPath: Assets.icons.logout.path,
-                                isActive: false,
-                                onTap: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const LoginPage(),
-                                    ),
-                                  );
-                                },
+                              Flexible(
+                                child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      double iconSize = constraints.maxHeight * 0.3;
+                                    return NavItem(
+                                      iconPath: Assets.icons.logout.path,
+                                      iconSize: iconSize,
+                                      isActive: false,
+                                      onTap: () {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const LoginPage(),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }
+                                ),
                               ),
                             ],
                           ),

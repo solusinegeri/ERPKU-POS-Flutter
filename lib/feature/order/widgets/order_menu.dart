@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:erpku_pos/core/extensions/int_ext.dart';
 import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:erpku_pos/feature/home/data/entities/save_order_data_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/gen/assets/assets.gen.dart';
 import '../../../core/widgets/components/spaces.dart';
@@ -27,10 +29,17 @@ class OrderMenuHistory extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
                 leading: ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(50.0)),
-                  child: Image.file(
+                  child: kIsWeb
+                      ? Image.network(
+                    data.product.image,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  )
+                      : Image.file(
                     File(data.product.image),
-                    width: 40.0,
-                    height: 40.0,
+                    width: 50,
+                    height: 50,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -60,7 +69,12 @@ class OrderMenuHistory extends StatelessWidget {
             SizedBox(
               width: 80.0,
               child: Text(
-                orderPayment,
+              NumberFormat.currency(
+                //quantity * price
+                locale: 'id',
+                symbol: 'Rp',
+                decimalDigits: 0,
+              ).format(int.parse(orderPayment) * int.parse(qty.toString())),
                 textAlign: TextAlign.right,
                 style: const TextStyle(
                   color: ColorValues.primary,

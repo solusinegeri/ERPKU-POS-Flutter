@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:erpku_pos/core/extensions/int_ext.dart';
 import 'package:erpku_pos/core/theme/color_values.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/gen/assets/assets.gen.dart';
@@ -29,10 +30,17 @@ class OrderMenu extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
                 leading: ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(50.0)),
-                  child: Image.file(
+                  child: kIsWeb
+                      ? Image.network(
+                    data.product.image,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  )
+                      : Image.file(
                     File(data.product.image),
-                    width: 40.0,
-                    height: 40.0,
+                    width: 50,
+                    height: 50,
                     fit: BoxFit.cover,
                   ),
                 ),

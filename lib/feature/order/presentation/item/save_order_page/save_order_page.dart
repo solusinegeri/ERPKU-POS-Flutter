@@ -1,4 +1,5 @@
 import 'package:erpku_pos/feature/home/widgets/empty_product.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/service/database_helper_save_product.dart';
@@ -60,47 +61,51 @@ class _SaveOrderPageState extends State<SaveOrderPage> {
               ),
             ),
             const SpaceHeight(16.0),
-            Flexible(
+            Expanded(
               flex: 12,
-              child: FutureBuilder<List<OrderSaveData>>(
-                future: _searchValue.isEmpty
-                    ? DatabaseHelperSaveProduct.getOrder()
-                    : DatabaseHelperSaveProduct.searchOrderByName(_searchValue),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    List<OrderSaveData> _orderList = snapshot.data ?? [];
+              child: Flexible(
+                child: FutureBuilder<List<OrderSaveData>>(
+                  future: _searchValue.isEmpty
+                      ? DatabaseHelperSaveProduct.getOrder()
+                      : DatabaseHelperSaveProduct.searchOrderByName(_searchValue),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      List<OrderSaveData> _orderList = snapshot.data ?? [];
 
-                    if (_orderList.isEmpty) {
-                      return const IsEmpty();
-                    }
+                      if (_orderList.isEmpty) {
+                        return const IsEmpty();
+                      }
 
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: _orderList.length,
-                      itemBuilder: (context, index) {
-                        return CardSaveOrder(
-                          orderName: _orderList[index].orderName ?? '',
-                          orderNumber: index + 1,
-                          onTap: () async {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailSaveOrderPage(
-                                  orderNumber: index + 1,
-                                  orderSaveData: _orderList[index],
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _orderList.length,
+                        itemBuilder: (context, index) {
+                          return CardSaveOrder(
+                            orderName: _orderList[index].orderName ?? '',
+                            orderNumber: index + 1,
+                            onTap: () async {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailSaveOrderPage(
+                                    orderNumber: index + 1,
+                                    orderSaveData: _orderList[index],
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  }
-                },
+                              );
+                            },
+                          );
+                        },
+                      );
+                    }
+                  },
+                ),
               ),
             ),
           ],

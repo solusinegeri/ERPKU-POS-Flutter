@@ -3,6 +3,7 @@ import 'package:erpku_pos/feature/home/data/entities/history_order_data_model.da
 import 'package:erpku_pos/feature/home/data/entities/order_item.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/gen/assets/assets.gen.dart';
 import '../../../core/service/database_helper_save_product.dart';
@@ -24,7 +25,8 @@ class ConfirmPaymentPage extends StatefulWidget {
   final List<OrderItem> selectedProducts;
   final int? orderNumber;
   final OrderSaveData? orderSaveData;
-  const ConfirmPaymentPage({super.key, required this.selectedProducts, this.orderNumber, this.orderSaveData});
+  final String? selectedDiscountCode;
+  const ConfirmPaymentPage({super.key, required this.selectedProducts, this.orderNumber, this.orderSaveData, this.selectedDiscountCode});
 
   @override
   State<ConfirmPaymentPage> createState() => _ConfirmPaymentPageState();
@@ -34,10 +36,27 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
 
   TextEditingController totalPriceController = TextEditingController();
 
+  late SharedPreferences _prefs;
+  late bool bukaPuasaDiscount = false;
+  late bool welcomeCWBDiscount = false;
   bool isCashFilled = true;
   bool isQRISFilled = false;
 
   final CurrencyInputFormatter _currencyFormatter = CurrencyInputFormatter();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDiscountStatus();
+  }
+
+  _loadDiscountStatus() async {
+    _prefs = await SharedPreferences.getInstance();
+    setState(() {
+      bukaPuasaDiscount = _prefs.getBool('bukaPuasaDiscount') ?? false;
+      welcomeCWBDiscount = _prefs.getBool('welcomeCWBDiscount') ?? false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,10 +202,33 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
                         ColumnButton(
                           label: 'Diskon',
                           svgGenImage: Assets.icons.diskon,
-                          onPressed: () => showDialog(
-                            context: context,
-                            builder: (context) => const DiscountDialog(),
-                          ),
+                          onPressed: () async {
+                            bool previousBukaPuasaDiscount = bukaPuasaDiscount;
+                            bool previousWelcomeCWBDiscount = welcomeCWBDiscount;
+
+                            final selectedDiscount = await showDialog<String>(
+                              context: context,
+                              builder: (context) => const DiscountDialog(),
+                            );
+
+                            if (selectedDiscount != null) {
+                              if (selectedDiscount == 'BUKAPUASA') {
+                                bukaPuasaDiscount = true;
+                                welcomeCWBDiscount = false;
+                              } else if (selectedDiscount == 'WELCOMECWB') {
+                                welcomeCWBDiscount = true;
+                                bukaPuasaDiscount = false;
+                              }else if (selectedDiscount == 'BACK') {
+                                welcomeCWBDiscount = false;
+                                bukaPuasaDiscount = false;
+                              }
+                            } else {
+                              bukaPuasaDiscount = previousBukaPuasaDiscount;
+                              welcomeCWBDiscount = previousWelcomeCWBDiscount;
+                            }
+
+                            setState(() {});
+                          },
                         ),
                         ColumnButton(
                           label: 'Pajak',
@@ -227,16 +269,16 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
                       ],
                     ),
                     const SpaceHeight(16.0),
-                    const Row(
+                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           'Diskon',
                           style: TextStyle(color: ColorValues.grey),
                         ),
                         Text(
-                          'Rp. 0',
-                          style: TextStyle(
+                          bukaPuasaDiscount ? '20%' : (welcomeCWBDiscount ? '30%' : 'Rp. 0'),
+                          style: const TextStyle(
                             color: ColorValues.primary,
                             fontWeight: FontWeight.w600,
                           ),
@@ -267,12 +309,15 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
                         const Text(
                           'Total',
                           style: TextStyle(
-                              color: ColorValues.grey,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
+                            color: ColorValues.grey,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         Text(
-                          NumberFormat.currency(locale: 'id', symbol: 'Rp').format(widget.selectedProducts.fold(0, (previousValue, element) => previousValue + (element.product.price * element.quantity)) * 1.11),
+                          NumberFormat.currency(locale: 'id', symbol: 'Rp').format(
+                            _calculateTotalPayment()
+                          ),
                           style: const TextStyle(
                             color: ColorValues.primary,
                             fontWeight: FontWeight.w600,
@@ -450,8 +495,6 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
                                     _saveHistoryOrderData('Order #${widget.orderNumber}',
                                         totalPriceController.text,
                                         widget.selectedProducts);
-
-
                                   }
                                 },
                                 label: 'Bayar',
@@ -480,7 +523,6 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
   void _saveHistoryOrderData(String name, String nominal, List<OrderItem> orderItems) async {
     if (name.isNotEmpty && orderItems.isNotEmpty) {
       final HistoryOrderSaveData historyOrderSaveData = HistoryOrderSaveData(
-        id: widget.orderSaveData?.id,
         orderName: name,
         orderNominal: nominal,
         orderItems: orderItems,
@@ -493,8 +535,9 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
         List<HistoryOrderSaveData> allOrders = await DatabaseHelperHistoryPaymentProduct.getHistoryOrder();
         print('Semua pesanan dalam database:');
         print(widget.orderSaveData);
+        print(widget.orderNumber);
         int i = 1;
-        if (name == "Order #${i++}" ) {
+        if (name == "Order #${widget.orderNumber}" && widget.orderSaveData != null) {
           await DatabaseHelperSaveProduct.deleteOrder(widget.orderSaveData!);
           setState(() {});
         }
@@ -525,5 +568,22 @@ class _ConfirmPaymentPageState extends State<ConfirmPaymentPage> {
       }
       Navigator.pop(context);
     }
+  }
+
+  double _calculateTotalPayment() {
+    double totalHarga = widget.selectedProducts.fold(0, (previousValue, element) => previousValue + (element.product.price * element.quantity));
+
+    // Menghitung diskon berdasarkan status diskon yang dipilih
+    double diskon = 0.0;
+    if (bukaPuasaDiscount) {
+      diskon = totalHarga * 0.2; // Diskon 20%
+    } else if (welcomeCWBDiscount) {
+      diskon = totalHarga * 0.3; // Diskon 30%
+    }
+
+    // Menghitung total pembayaran setelah diskon dan pajak
+    double totalPembayaran = totalHarga - diskon;
+    totalPembayaran *= 1.11; // Total dengan pajak 11%
+    return totalPembayaran;
   }
 }

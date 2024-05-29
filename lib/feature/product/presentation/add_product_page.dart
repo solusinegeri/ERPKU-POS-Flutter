@@ -2,9 +2,10 @@ import 'dart:io';
 
 import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:erpku_pos/core/widgets/components/components.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../../../core/service/database_helper_product_item.dart';
 import '../../../core/utils/CurrencyInputFormatter.dart';
 import '../../home/data/entities/product_category.dart';
@@ -27,6 +28,7 @@ class _AddProductPageState extends State<AddProductPage> {
 
   final ImagePicker _picker = ImagePicker();
   File? _imageFile;
+  Uint8List? _webImage;
 
   Future<void> _getImage(ImageSource source, int imageIndex) async {
     final pickedFile = await _picker.pickImage(source: source);
@@ -36,7 +38,35 @@ class _AddProductPageState extends State<AddProductPage> {
         _imageFile = File(pickedFile.path);
       });
     }
+
+  //   if (pickedFile != null && kIsWeb) {
+  //     // Web image picker
+  //     html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+  //     uploadInput.accept = 'image/*';
+  //     uploadInput.click();
+  //     uploadInput.onChange.listen((event) {
+  //       final files = uploadInput.files;
+  //       if (files!.isNotEmpty) {
+  //         final reader = html.FileReader();
+  //         reader.readAsArrayBuffer(files[0]);
+  //         reader.onLoadEnd.listen((event) {
+  //           setState(() {
+  //             _webImage = reader.result as Uint8List;
+  //           });
+  //         });
+  //       }
+  //     });
+  //   } else {
+  //     if (pickedFile != null) {
+  //       setState(() {
+  //         _imageFile = File(pickedFile.path);
+  //       });
+  //     }
+  //   }
+  // }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -45,220 +75,226 @@ class _AddProductPageState extends State<AddProductPage> {
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
-            child: Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Halaman Tambah Produk',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SpaceHeight(8.0),
-                  const Text(
-                    'Tambahkan produk baru untuk dijual',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                  const SpaceHeight(24.0),
-                  const Text(
-                    'Foto Produk',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SpaceHeight(16.0),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: GestureDetector(
-                      onTap: () {
-                        _showBottomSheetPhoto(context);
-                      },
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: ColorValues.blueLight,
-                          borderRadius: BorderRadius.circular(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Halaman Tambah Produk',
+                        style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
                         ),
-                        child: _imageFile != null
-                            ? Container(
-                                width: 100,
-                                height: 100,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: FileImage(_imageFile!),
-                                    fit: BoxFit.cover,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      const SpaceHeight(8.0),
+                      const Text(
+                        'Tambahkan produk baru untuk dijual',
+                        style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SpaceHeight(24.0),
+                      const Text(
+                        'Foto Produk',
+                        style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SpaceHeight(16.0),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: GestureDetector(
+                          onTap: () {
+                            _showBottomSheetPhoto(context);
+                          },
+                          child: Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: ColorValues.blueLight,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: _imageFile != null 
+                                ? Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: kIsWeb ?
+                                  Image.network(_imageFile!.path).image
+                                      : FileImage(_imageFile!) as ImageProvider,
+                                  fit: BoxFit.cover,
                                 ),
-                                child: Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Container(
-                                    margin: const EdgeInsets.all(8.0),
-                                    width: 30,
-                                    height: 30,
-                                    decoration: BoxDecoration(
-                                      color: ColorValues.white,
-                                      borderRadius: BorderRadius.circular(50.0),
-                                    ),
-                                    child: const Icon(
-                                      Icons.edit,
-                                      color: ColorValues.primary,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : const Icon(
-                                Icons.camera_alt,
-                                color: ColorValues.primary,
-                                size: 40,
+                                borderRadius: BorderRadius.circular(8.0),
                               ),
+                              child: Align(
+                                alignment: Alignment.bottomRight,
+                                child: Container(
+                                  margin: const EdgeInsets.all(8.0),
+                                  width: 30,
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white, // Replace ColorValues.white
+                                    borderRadius: BorderRadius.circular(50.0),
+                                  ),
+                                  child: const Icon(
+                                    Icons.edit,
+                                    color: ColorValues.primary,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            )
+                                : const Icon(
+                              Icons.camera_alt,
+                              color: ColorValues.primary,
+                              size: 40,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SpaceHeight(24.0),
-                  const Text(
-                    'Nama Produk',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SpaceHeight(8.0),
-                  TextFormField(
-                    controller: _productController,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                      const SpaceHeight(24.0),
+                      const Text(
+                        'Nama Produk',
+                        style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      hintText: 'Masukkan Nama Produk',
-                    ),
-                  ),
-                  const SpaceHeight(24.0),
-                  const Text(
-                    'Harga Produk',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SpaceHeight(8.0),
-                  TextFormField(
-                    controller: _priceController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [_currencyFormatter],
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                      const SpaceHeight(8.0),
+                      TextFormField(
+                        controller: _productController,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          hintText: 'Masukkan Nama Produk',
+                        ),
                       ),
-                      hintText: 'Masukkan Harga Produk',
-                    ),
-                  ),
-                  const SpaceHeight(24.0),
-                  const Text(
-                    'Kategori Produk',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SpaceHeight(8.0),
-                  //dropdown textfield category
-                  DropdownButtonFormField(
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                      const SpaceHeight(24.0),
+                      const Text(
+                        'Harga Produk',
+                        style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'Makanan',
-                        child: Text('Makanan'),
+                      const SpaceHeight(8.0),
+                      TextFormField(
+                        controller: _priceController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [_currencyFormatter],
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          hintText: 'Masukkan Harga Produk',
+                        ),
                       ),
-                      DropdownMenuItem(
-                        value: 'Minuman',
-                        child: Text('Minuman'),
+                      const SpaceHeight(24.0),
+                      const Text(
+                        'Kategori Produk',
+                        style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      DropdownMenuItem(
-                        value: 'Snack',
-                        child: Text('Snack'),
+                      const SpaceHeight(8.0),
+                      //dropdown textfield category
+                      DropdownButtonFormField(
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'Makanan',
+                            child: Text('Makanan'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Minuman',
+                            child: Text('Minuman'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Snack',
+                            child: Text('Snack'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            _categoryController.text = value.toString();
+                          });
+                        },
+                        value: _categoryController.text.isEmpty
+                            ? null
+                            : _categoryController.text,
+                        style: const TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SpaceHeight(24.0),
+                      const Text(
+                        'Stok Produk',
+                        style: TextStyle(
+                          color: ColorValues.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SpaceHeight(8.0),
+                      TextFormField(
+                        controller: _stockController,
+                        keyboardType: TextInputType.number,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          hintText: 'Masukkan Stok Produk',
+                        ),
+                      ),
+                      const SpaceHeight(24.0),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: ColoredBox(
+                          color: ColorValues.white,
+                          child: Button.filled(
+                            onPressed: () {
+                              //save product
+                              _saveProduct();
+                            },
+                            label: 'Simpan',
+                          ),
+                        ),
                       ),
                     ],
-                    onChanged: (value) {
-                      setState(() {
-                        _categoryController.text = value.toString();
-                      });
-                    },
-                    value: _categoryController.text.isEmpty
-                        ? null
-                        : _categoryController.text,
-                    style: const TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
                   ),
-                  const SpaceHeight(24.0),
-                  const Text(
-                    'Stok Produk',
-                    style: TextStyle(
-                      color: ColorValues.primary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SpaceHeight(8.0),
-                  TextFormField(
-                    controller: _stockController,
-                    keyboardType: TextInputType.number,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      hintText: 'Masukkan Stok Produk',
-                    ),
-                  ),
-                  const SpaceHeight(24.0),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: ColoredBox(
-                      color: ColorValues.white,
-                      child: Button.filled(
-                        onPressed: () {
-                          //save product
-                          _saveProduct();
-                        },
-                        label: 'Simpan',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ));

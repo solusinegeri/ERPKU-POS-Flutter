@@ -1,6 +1,7 @@
 import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:erpku_pos/feature/home/data/entities/save_order_data_model.dart';
 import 'package:erpku_pos/feature/home/widgets/empty_product.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -490,18 +491,22 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24.0, vertical: 16.0),
-                      child: Flexible(
-                        child: Button.filled(
-                          onPressed: () {
-                            Map<ProductModel, int> selectedProductsMap = { for (var item in widget.selectedProducts) item.product : item.quantity };
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Button.filled(
+                              onPressed: () {
+                                Map<ProductModel, int> selectedProductsMap = { for (var item in widget.selectedProducts) item.product : item.quantity };
 
-                            _saveOrderData(
-                                widget.orderName,
-                                _convertToOrderItems(selectedProductsMap)
-                            );
-                          },
-                          label: 'Simpan Pesanan',
-                        ),
+                                _saveOrderData(
+                                    widget.orderName,
+                                    _convertToOrderItems(selectedProductsMap)
+                                );
+                              },
+                              label: 'Simpan Pesanan',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

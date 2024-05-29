@@ -29,7 +29,7 @@ class HomeTitle extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Resto with Bahri POS',
+              'ERPKU POS',
               style: TextStyle(
                 color: ColorValues.primary,
                 fontSize: 22,

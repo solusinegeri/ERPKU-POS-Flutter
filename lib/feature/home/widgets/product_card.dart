@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:erpku_pos/core/theme/color_values.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/components/spaces.dart';
@@ -45,12 +46,19 @@ class ProductCard extends StatelessWidget {
                   ),
                   child: ClipRRect(
                     borderRadius: const BorderRadius.all(Radius.circular(40.0)),
-                    child: Image.file(
-                      File(data.image),
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    ),
+                    child: kIsWeb
+                        ? Image.network(
+                            data.image,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.file(
+                            File(data.image),
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 ),
                 const Spacer(),
@@ -103,8 +111,7 @@ class ProductCard extends StatelessWidget {
                   height: 40,
                   padding: const EdgeInsets.all(6),
                   decoration: const BoxDecoration(
-                    borderRadius:
-                    BorderRadius.all(Radius.circular(9.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(9.0)),
                     color: ColorValues.primary,
                   ),
                   child: Center(
@@ -126,8 +133,7 @@ class ProductCard extends StatelessWidget {
                   height: 40,
                   padding: const EdgeInsets.all(6),
                   decoration: const BoxDecoration(
-                    borderRadius:
-                    BorderRadius.all(Radius.circular(9.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(9.0)),
                     color: ColorValues.primary,
                   ),
                   child: const Center(
@@ -147,5 +153,3 @@ class ProductCard extends StatelessWidget {
     );
   }
 }
-
-

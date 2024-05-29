@@ -62,27 +62,27 @@ class _SettingsPageState extends State<SettingsPage> {
                         : Colors.transparent,
                     onTap: () => indexValue(0),
                   ),
-                  ListTile(
-                    contentPadding: const EdgeInsets.all(12.0),
-                    leading: Assets.icons.kelolaPrinter.svg(),
-                    title: const Text('Kelola Printer'),
-                    subtitle: const Text('Tambah atau hapus printer'),
-                    textColor: ColorValues.primary,
-                    tileColor: currentIndex == 1
-                        ? ColorValues.blueLight
-                        : Colors.transparent,
-                    onTap: () => indexValue(1),
-                  ),
+                  // ListTile(
+                  //   contentPadding: const EdgeInsets.all(12.0),
+                  //   leading: Assets.icons.kelolaPrinter.svg(),
+                  //   title: const Text('Kelola Printer'),
+                  //   subtitle: const Text('Tambah atau hapus printer'),
+                  //   textColor: ColorValues.primary,
+                  //   tileColor: currentIndex == 1
+                  //       ? ColorValues.blueLight
+                  //       : Colors.transparent,
+                  //   onTap: () => indexValue(1),
+                  // ),
                   ListTile(
                     contentPadding: const EdgeInsets.all(12.0),
                     leading: Assets.icons.kelolaPajak.svg(),
                     title: const Text('Perhitungan Biaya'),
                     subtitle: const Text('Kelola biaya diluar biaya modal'),
                     textColor: ColorValues.primary,
-                    tileColor: currentIndex == 2
+                    tileColor: currentIndex == 1
                         ? ColorValues.blueLight
                         : Colors.transparent,
-                    onTap: () => indexValue(2),
+                    onTap: () => indexValue(1),
                   ),
                 ],
               ),
@@ -100,7 +100,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   index: currentIndex,
                   children: const [
                     ManageDiscount(),
-                    PrinterPage(),
+                    // PrinterPage(),
                     ManageTax(),
                   ],
                 ),
