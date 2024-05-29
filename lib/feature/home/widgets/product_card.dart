@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:erpku_pos/core/theme/color_values.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
 import '../../../core/widgets/components/spaces.dart';
 import '../data/entities/product_model.dart';
 
@@ -21,6 +23,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(data.image);
     return GestureDetector(
       onTap: onCartButton,
       child: Container(
@@ -47,11 +50,15 @@ class ProductCard extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: const BorderRadius.all(Radius.circular(40.0)),
                     child: kIsWeb
-                        ? Image.network(
-                            data.image,
+                        ? CachedNetworkImage(
+                            imageUrl: data.image,
                             width: 50,
                             height: 50,
                             fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
                           )
                         : Image.file(
                             File(data.image),
@@ -151,5 +158,28 @@ class ProductCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<String> convertBlobToValidURL(String blobURL) async {
+    // Mendapatkan konten blob
+    final response = await http.get(Uri.parse(blobURL));
+
+    // Memeriksa apakah responsenya berhasil
+    if (response.statusCode == 200) {
+      // Mengonversi konten blob ke dalam bentuk bytes
+      final blobBytes = response.bodyBytes;
+
+      // Mengonversi bytes ke dalam format base64
+      final base64String = base64Encode(blobBytes);
+
+      // Membuat URL yang valid dari base64 string
+      final validURL = 'data:image/png;base64,$base64String'; // Ubah sesuai tipe konten blob Anda
+
+      // Mengembalikan URL yang valid
+      return validURL;
+    } else {
+      // Jika responsenya tidak berhasil, lempar exception
+      throw Exception('Failed to load blob content');
+    }
   }
 }

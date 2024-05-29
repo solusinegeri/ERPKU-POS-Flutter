@@ -601,6 +601,15 @@ class _HomePageState extends State<HomePage> {
             ConfirmPaymentPage(selectedProducts: selectedProductsList, orderSaveData: widget.orderSaveData,),
       ),
     );
+
+    // Navigator.pushNamed(
+    //   context,
+    //   '/confirm/payment',
+    //   arguments: ConfirmPaymentPage(
+    //     selectedProducts: selectedProductsList,
+    //     orderSaveData: widget.orderSaveData,
+    //   ),
+    // );
   }
 
   List<OrderItem> _convertToOrderItems(Map<ProductModel, int> selectedProducts) {

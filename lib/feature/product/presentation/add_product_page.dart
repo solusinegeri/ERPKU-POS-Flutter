@@ -28,7 +28,6 @@ class _AddProductPageState extends State<AddProductPage> {
 
   final ImagePicker _picker = ImagePicker();
   File? _imageFile;
-  Uint8List? _webImage;
 
   Future<void> _getImage(ImageSource source, int imageIndex) async {
     final pickedFile = await _picker.pickImage(source: source);
@@ -38,32 +37,6 @@ class _AddProductPageState extends State<AddProductPage> {
         _imageFile = File(pickedFile.path);
       });
     }
-
-  //   if (pickedFile != null && kIsWeb) {
-  //     // Web image picker
-  //     html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
-  //     uploadInput.accept = 'image/*';
-  //     uploadInput.click();
-  //     uploadInput.onChange.listen((event) {
-  //       final files = uploadInput.files;
-  //       if (files!.isNotEmpty) {
-  //         final reader = html.FileReader();
-  //         reader.readAsArrayBuffer(files[0]);
-  //         reader.onLoadEnd.listen((event) {
-  //           setState(() {
-  //             _webImage = reader.result as Uint8List;
-  //           });
-  //         });
-  //       }
-  //     });
-  //   } else {
-  //     if (pickedFile != null) {
-  //       setState(() {
-  //         _imageFile = File(pickedFile.path);
-  //       });
-  //     }
-  //   }
-  // }
   }
 
 
@@ -424,6 +397,8 @@ class _AddProductPageState extends State<AddProductPage> {
 
     // Create a product item data
     ProductItemData productItemData = ProductItemData(productItems: [productModel]);
+
+    print('Image Path: ${_imageFile?.path}');
 
     try {
       // Insert the product item data into the database

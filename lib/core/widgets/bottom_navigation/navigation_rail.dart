@@ -155,12 +155,7 @@ class _NavigationRailDekstopState extends State<NavigationRailDesktop> {
                                       iconSize: iconSize,
                                       isActive: false,
                                       onTap: () {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const LoginPage(),
-                                          ),
-                                        );
+                                        Navigator.pushReplacementNamed(context, '/login');
                                       },
                                     );
                                   }

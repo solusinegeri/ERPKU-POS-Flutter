@@ -96,12 +96,7 @@ class _LoginPageState extends State<LoginPage> {
           const SpaceHeight(24.0),
           Button.filled(
             onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NavigationRailDesktop(),
-                ),
-              );
+              Navigator.pushReplacementNamed(context, '/main');
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Login Berhasil'),
